@@ -78,12 +78,15 @@ public class ReadThread extends Thread {
         AlarmModel alarmModel = alarmInfoModel.getAlarmModel().get(0);
         return new stKtAgwAlarmExtEvent(AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
                 alarmModel.getTid(), alarmModel.getAlarmCode(), setNativeDeviceName(alarmModel), 0xffffffff
-                , alarmModel.getAlarmData().getServerity(),  (short)0, "",  (short)0,  (short)0,  (short)0,  (short)0,  (short)0,  (short)0,  (short)0, alarmModel.getCreateTime(), alarmModel.getInformation(), "", "");
+                , alarmModel.getAlarmData().getServerity()
+                ,  (short)0, "0",  (short)0,  (short)0,  (short)0,  (short)0,  (short)0,  (short)27,  (short)0
+                , alarmModel.getCreateTime(), alarmModel.getInformation(), "()", "");
     }
     public  KTSIOMsg setKTKtsioMsg(Any[] anyArray){
           return new KTSIOMsg("SLGA12132", (short) 6, (short) 3,
-                  MsgType.MSGTYPE_Alarm.getMsgType(), 0xffffffff, 0, (short) 0, (short) 0, (short) 0, (short) 0,
-            (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, anyArray);
+                  MsgType.MSGTYPE_Alarm.getMsgType(), 0x7A000000
+                  , 0, (short) 0, (short) 0, (short) 0, (short) 0
+                  , (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, anyArray);
 
     }
     //각사 고유의 Location 정보( '/'를 // 구분자로 한다 )

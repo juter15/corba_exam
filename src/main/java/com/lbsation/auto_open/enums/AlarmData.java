@@ -1,11 +1,11 @@
 package com.lbsation.auto_open.enums;
 
 public enum AlarmData {
-    MIN("MINOR", (short)4),
+    CRI("CRITICAL", (short)2),
     MAJ("MAJOR", (short)3),
-    CRI("CRITICAL", (short)6),
-    DIS("DISCONN", (short) 99),
-    CONN("", (short)99);
+    MIN("MINOR", (short)4),
+    DIS("DISCONN", (short) 99);
+   // CONN("", (short)99);
     private String alarmGrade;
     private short serverity;
 
