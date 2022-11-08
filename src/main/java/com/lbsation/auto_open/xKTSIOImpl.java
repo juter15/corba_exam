@@ -1,19 +1,13 @@
-package com.example.corba_demo;
+package com.lbsation.auto_open;
 
 import KTCosNMS.*;
 import KTCosNMS.xAGWPackage.*;
-import com.example.corba_demo.configuartion.DbConfiguration;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
+import com.lbsation.auto_open.configuartion.DbConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.Object;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.UUID;
 import java.util.Vector;
 

@@ -1,4 +1,4 @@
-package com.example.corba_demo;
+package com.lbsation.auto_open;
 
 import KTCosNMS.xKTSIO;
 import KTCosNMS.xKTSIOHelper;
@@ -14,73 +14,69 @@ import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.omg.PortableServer.POAPackage.ServantNotActive;
 import org.omg.PortableServer.POAPackage.WrongPolicy;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Schedules;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.io.IOException;
-import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@SpringBootApplication
-public class CorbaDemoApplication {
-    //    private static ApplicationContext applicationContext;
+public class xKTSIOServer {
     public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBInitialHost", "localhost"};
 
-    public static void main(String[] args) throws InterruptedException, IOException {
 
-
+    public static void main(String args[]) throws IOException, InterruptedException {
+        RedisTemplate<String, String> redisTemplate;
         List<String> orbdStartupCommands = new ArrayList<>();
         orbdStartupCommands.add("orbd");
         orbdStartupCommands.addAll(Arrays.asList(ORB_OPTIONS));
+        ProcessBuilder processBuilder = new ProcessBuilder(orbdStartupCommands);
 
-        Process orbdProcess = new ProcessBuilder(orbdStartupCommands).start();
+        Process orbdProcess = processBuilder.start();
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("xKTSIOService Exiting ...");
+            System.out.println("Service Exiting ...");
             orbdProcess.destroy();
         }));
 
-        TimeUnit.SECONDS.sleep(1);
+        TimeUnit.SECONDS.sleep(2);
+
         try {
             bindService(ORB_OPTIONS);
         } catch (Exception e) {
             System.err.println("ERROR: " + e);
             e.printStackTrace(System.out);
         }
-        SpringApplication.run(CorbaDemoApplication.class, args);
-
 
     }
 
     private static void bindService(String[] options) throws InvalidName, AdapterInactive, ServantNotActive, WrongPolicy, org.omg.CosNaming.NamingContextPackage.InvalidName, NotFound, CannotProceed {
+
         ORB orb = ORB.init(options, null);
 
-        POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
-        rootPOA.the_POAManager().activate();
+        POA poa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
+        poa.the_POAManager().activate();
 
         xKTSIOImpl server = new xKTSIOImpl();
 
-        org.omg.CORBA.Object ref = rootPOA.servant_to_reference(server);
+        org.omg.CORBA.Object ref = poa.servant_to_reference(server);
         xKTSIO href = xKTSIOHelper.narrow(ref);
 
-        org.omg.CORBA.Object objRef =
-                orb.resolve_initial_references("NameService");
+        org.omg.CORBA.Object objRef = orb.resolve_initial_references("NameService");
         NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
 
-        NameComponent path[] = ncRef.to_name("xKTSIOServer");
+        NameComponent path[] = ncRef.to_name("xKTSIO");
         ncRef.rebind(path, href);
 
         System.out.println("xKTSIOService ready started and waiting request ...");
 
-        server.startReadThread();
+//        server.startReadThread();
 
         orb.run();
+
     }
 
 
-
 }
+

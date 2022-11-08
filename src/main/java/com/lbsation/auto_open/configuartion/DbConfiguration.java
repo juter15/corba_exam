@@ -1,4 +1,4 @@
-package com.example.corba_demo.configuartion;
+package com.lbsation.auto_open.configuartion;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;

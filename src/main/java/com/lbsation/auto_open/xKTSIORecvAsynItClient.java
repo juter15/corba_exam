@@ -1,6 +1,7 @@
-package com.example.corba_demo;
+package com.lbsation.auto_open;
 
 import KTCosNMS.*;
+import KTCosNMS.xAGWPackage.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 @Slf4j
-public class xKTSIORecvItClient {
+public class xKTSIORecvAsynItClient {
     public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBInitialHost", "localhost"};
 
 
@@ -39,17 +40,25 @@ public class xKTSIORecvItClient {
             xKTSIO ref = xKTSIOHelper.narrow(
                     rootPOA.servant_to_reference(listener));
 
+//            EquipInfo equipInfo = (EquipInfo) PortableRemoteObject.narrow(ref, EquipInfo.class);// line 127
 
+            //Resolve MessageServer
             xKTSIO xKTSIOServer = xKTSIOHelper.narrow(
                     orb.string_to_object("corbaname:iiop:1.2@localhost:1050#xKTSIOServer"));
+//            xKTSIOServer.echoString("@@@@@@@@@@");
+            //Register listener reference (callback object) with MessageServer
 
-            KTSIOMsg ktsioMsg = setKTSIOMsg(orb);
-            KTSIOMsgHolder ktsioMsgHolder = new KTSIOMsgHolder(ktsioMsg);
-            xKTSIOServer.recvIt(ktsioMsg, ktsioMsgHolder);
+//            KTSIOMsg ktsioMsg = setKTSIOMsg(orb);
+
+            xKTSIOServer.recvAsyncIt(setKTSIOMsg(orb), ref);
+
+            System.out.println("Listener registered with xKTSIOServer");
+
             //Activate rootpoa
             rootPOA.the_POAManager().activate();
 
             //Wait for messages
+            System.out.println("Wait for incoming messages");
             orb.run();
 
         } catch (Exception e) {
@@ -58,31 +67,24 @@ public class xKTSIORecvItClient {
     }
 
     public static KTSIOMsg setKTSIOMsg(ORB orb) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        KTSIOMsgHolder ktsioMsgHolder = new KTSIOMsgHolder();
+        Any[] anyArray = new Any[1];
+        anyArray[0] = orb.create_any();
 
-        org.omg.CORBA.Any[] anyArray = new org.omg.CORBA.Any[1];
-        Any any = orb.create_any();
-
-        anyArray[0] = any;
-        EquipInfoHelper.insert(anyArray[0], setEquipInfo());
+        stKtAgwAlarmExtEventHelper.insert(anyArray[0], new stKtAgwAlarmExtEvent().setStKtAgwAlarmExtEvent());
+//        StatEventStHelper.insert(anyArray[0], new StatEventSt().setStatEventSt());
+//        stKtAgwAlarmExtEventHelper.insert(anyArray[0], new stKtAgwAlarmExtEvent());
 
 
-        KTSIOMsg ktsioMsg = new KTSIOMsg("sourceSys", (short) 1, (short) 1,
-                (short) 1, 1, 1, (short) 1, (short) 1, (short) 1, (short) 1,
-                (short) 1, (short) 1, (short) 1, (short) 1, (short) 1, anyArray);
+        ////            Any any = orb.create_any();
+        KTSIOMsg ktsioMsg = new KTSIOMsg("SLGA12132", (short) 6, (short) 3,
+                (short) 3, 7, 0, (short) 0, (short) 0, (short) 0, (short) 0,
+                (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, anyArray);
 
         return ktsioMsg;
     }
 
-    public static EquipInfo setEquipInfo() {
-        return new EquipInfo("i", "eqId", "managIp", "headrId", "headName",
-                "nscId", "nscName", "omcId", "omcName", "ofId",
-                "officeName", "rsoId", "rsoName", "eqName", "read",
-                "write", "emsIp", "eqUCd", "cTCd", "vCd",
-                "modelName", "mNCd", "itLo", "addr1", "dg",
-                "v", "spc", "spcAlias", "eqN2", "mainClsType",
-                "subClsType", "oNCd", "oltMstIp", "oltNeAlias", "oMl",
-                "oUCd", "rnNesCode", "rnNeAlias", "rnMN", "rUCd",
-                "oltLinkIp", 111, "ipsecgwIp", "tCom", "mac", "mgid");
-    }
+
 
 }

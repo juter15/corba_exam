@@ -1,24 +1,19 @@
-package com.example.corba_demo;
+package com.lbsation.auto_open;
 
 import KTCosNMS.KTSIOMsg;
 import KTCosNMS.xAGWPackage.stKtAgwAlarmExtEvent;
 import KTCosNMS.xAGWPackage.stKtAgwAlarmExtEventHelper;
-import com.example.corba_demo.configuartion.RedisConfiguration;
-import com.example.corba_demo.enums.AgwTypeCode;
-import com.example.corba_demo.enums.MsgType;
-import com.example.corba_demo.model.AlarmInfoModel;
-import com.example.corba_demo.model.AlarmModel;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.lbsation.auto_open.configuartion.RedisConfiguration;
+import com.lbsation.auto_open.enums.AgwTypeCode;
+import com.lbsation.auto_open.enums.MsgType;
+import com.lbsation.auto_open.model.AlarmInfoModel;
+import com.lbsation.auto_open.model.AlarmModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.omg.CORBA.Any;
-import org.springframework.stereotype.Service;
 import redis.clients.jedis.*;
 
-import java.io.*;
-import java.util.List;
 import java.util.Objects;
 
 @Slf4j

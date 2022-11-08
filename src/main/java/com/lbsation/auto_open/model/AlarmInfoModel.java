@@ -1,6 +1,6 @@
-package com.example.corba_demo.model;
+package com.lbsation.auto_open.model;
 
-import com.example.corba_demo.enums.OnOff;
+import com.lbsation.auto_open.enums.OnOff;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.example.corba_demo.enums;
+package com.lbsation.auto_open.enums;
 
 public enum OnOff {
     ON(1),

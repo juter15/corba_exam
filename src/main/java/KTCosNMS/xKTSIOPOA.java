@@ -1,12 +1,7 @@
 package KTCosNMS;
 
 
-import com.example.corba_demo.xKTSIOImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.omg.CORBA.Any;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 /**
 * KTCosNMS/xKTSIOPOA.java .
