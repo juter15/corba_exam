@@ -1,0 +1,28 @@
+server:
+  port: ${SERVER_PORT:9294}
+
+spring:
+  application:
+    name: AGW-ALARM
+  redis:
+    cluster:
+      timeout: 60000
+      nodes: ${REDIS_URL:61.98.79.244:7000,61.98.79.244:7001}
+
+  jpa:
+    show-sql: true
+    open-in-view: true
+    hibernate:
+      ddl-auto: validate
+  datasource:
+    #    url: ${EMS_DATASOURCE_URL:jdbc:mariadb://10.0.65.53:3306/agwems?tinyInt1isBit=false&rewriteBatchedStatements=true}
+    #    url: ${EMS_DATASOURCE_URL:jdbc:mariadb://localhost:3306/ems_demo?tinyInt1isBit=false&rewriteBatchedStatements=true}
+    #    username: ${DATASOURCE_USERNAME:root}
+    #    password: ${DATASOURCE_PASSWORD:123456}
+    url: ${EMS_DATASOURCE_URL:jdbc:mariadb://61.98.79.244:13306/agwems2?tinyInt1isBit=false&rewriteBatchedStatements=true}
+    #    # USER NAME
+    username: ${DATASOURCE_USERNAME:emsuser}
+    # PASS WORD
+    password: ${DATASOURCE_PASSWORD:ems!user123}
+
+#alarmKey: ${DIAG_KEY:ALARM}
