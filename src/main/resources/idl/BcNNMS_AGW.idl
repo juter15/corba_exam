@@ -1,0 +1,1665 @@
+
+module KTCosNMS // KT Corba Object Service for NMS
+{
+ interface  xKTSIO ; // KT Standard Input/Output Interface ( KT Common Interface )
+
+ interface  xAGW ;  // Access Gateway Interface for only Data Structure Definitions
+ interface  xEXCH ;  // Exchange Interface for only Data Structure Definitions
+ interface  xTIMS ;  // TIMS Interface for only Data Structure Definitions
+ interface  xANSWERS ; // ANSWERS Interface for only Data Structure Definitions
+ interface  xDSLAM ; // DSLAM Interface for only Data Structure Definitions
+ interface  xATM ;  // ATM Interface for only Data Structure Definitions
+        // Interface Definition for future
+
+
+    //------------------------------------------------------------------------------------------------------
+    // Enumeration Definition for  KTCosNMS Module ( Common Enumeration )
+    //------------------------------------------------------------------------------------------------------
+ enum enNeType
+ {
+  NETYPE_Eocms,
+  NETYPE_Exchange,
+  NETYPE_Flc,
+  NETYPE_FlcEms,
+  NETYPE_Dslam,
+  NETYPE_DslamEms,
+  NETYPE_Agw,
+  NETYPE_AgwEms
+ } ;
+ 	
+ enum enVendorCode
+ {
+  VENDOR_Rsv,
+  VENDOR_Lg,
+  VENDOR_Alcatel,
+  VENDOR_Samsung,
+  VENDOR_Lucent,
+  VENDOR_Mercury
+ } ;
+ 	
+ enum enServiceGroup
+ {
+  SVCGRP_Sys,
+  SVCGRP_Loading,
+  SVCGRP_Ver,
+  SVCGRP_V52,
+  SVCGRP_Sli,
+  SVCGRP_Unit,
+  SVCGRP_Proc, // Processor
+  SVCGRP_Prc, // Process
+  SVCGRP_Pwr,
+  SVCGRP_Swt,
+  SVCGRP_Clk,
+  SVCGRP_Sig,
+  SVCGRP_Trk,
+  SVCGRP_Test,
+  SVCGRP_Cbl,
+  SVCGRP_Stm1,
+  SVCGRP_Atm,
+  SVCGRP_Dsl,
+  SVCGRP_Env,
+  SVCGRP_EmsRsc, // Resource
+  SVCGRP_EmsNet, // Network
+  SVCGRP_EmsRun,
+  SVCGRP_EmsSecu // Security
+ } ;
+
+    enum enAlarmSeverity
+    {
+     ALMSVR_Recovery,
+     ALMSVR_Minor,
+     ALMSVR_Major,
+     ALMSVR_Critical
+    } ;
+
+ enum enAlarmState
+    {
+     ALMSTS_Recovery,
+     ALMSTS_Occurrence
+ } ;
+    
+    enum enAlarmCorrelationFlag
+    {
+     ALMCORFLAG_Off,
+     ALMCORFLAG_On
+    } ;
+
+    enum enLoadingState
+    {
+  LOADINGSTS_Start,
+  LOADINGSTS_End,
+  LOADINGSTS_Fail
+    } ;
+
+    enum enSwitch
+    {
+     SWT_Off,
+     SWT_On
+    } ;
+    
+    enum enBoolean
+    {
+     BOOL_False,
+     BOOL_True
+    } ;
+
+ enum enSystemState 
+ { 
+  SYSSTS_Up, 
+  SYSSTS_Down 
+ } ;
+
+    enum enNetwState
+    {
+  NETWSTS_Up,
+  NETWSTS_Down
+    } ;
+    
+    enum enResult
+    {
+     RLT_Success,
+     RLT_Comm_Fail,
+  RLT_Db_Error,
+  RLT_File_Error,
+  RLT_Auth_Error,
+  RLT_NoDef_OpCode,
+  RLT_NoDef_TypeCode,
+  RLT_NoDef_NE,
+  RLT_NoDef_Seq,
+  RLT_NoDef_Error
+    } ;
+    
+    //------------------------------------------------------------------------------------------------------
+    // Exception Definition for  KTCosNMS Module ( Common Corba Exception )
+    //------------------------------------------------------------------------------------------------------
+    exception  KtNMSMsgEx  // Message Exception
+    {
+     short neType ;
+     short msgType ;
+     long opCode ;
+     long seqNo ;
+     string reason ;
+     string location ;
+    } ;
+    exception  KtNMSOprEx  // Operation Exception
+    {
+     string oprName ;  // Operation Name
+     string reason ;  // Reason string
+    } ;
+    
+    
+    typedef sequence<any>  anySeq ;
+    typedef sequence<string> strSeq ;
+
+    struct KTSIOMsg  // KT Standard Input/Output Message
+    {
+     string sourceSys ;  // Originated Source System
+     short neType ;  // Type of NE
+     short vendorCode ; // Vendor Code
+     short msgType ;  // Message Type
+     long opCode ;  // Operation Code
+     long seqNo ;  // Sequence No(Requested Unique Id or 0 for Event)
+     short linkedReply ; // Continuous Reply Flag
+     short result ;  // Result or Reason Code
+     short tid ;  // Target System Id
+     short ssid ;  // SubSystem Id
+     short oid ;  // SubSystem Object Id
+     short rid ;  // System Rack Id
+     short sid ;  // System Shelf Id
+     short cid ;  // System Circuit Id
+     short lid ;  // Line or Port Id
+     anySeq msgBody ;  // Message Body : n message
+    } ;
+    typedef sequence<KTSIOMsg> KTSIOMsgSeq ;
+    
+    //equipOpCode
+    //I   -   insert
+    //U   -   update
+    //D   -   delete
+    struct EquipInfo {
+            string   equipOpCode ;           // OPCODE
+
+    	string   equipmentId	;  	// 장비 CODE
+    	string   managedIp;		// 장비대표IP
+    	string   headquarterId;	        // 운용단 CODE
+    	string   headquarterName;        // 운용단 NAME
+    	string   nscId;                  // NSC CODE
+    	string   nscName ;               // NSC NAME
+    	string   omcId ;                 // 교환팀 CODE
+    	string   omcName   ;             // 교환팀 NAME
+    	string   officeId	;  	// 국사 CODE
+            string   officeName ;            // 국사 NAME
+    	string   rssofficeId	;  	// 장비가 설치된 RSSOfficeCode
+    	string   rssofficeName	; 	// 장비가 설치된 RSSOffice명
+    	string   equipmentName ;       	// 장비별칭
+    	string   readCommunity	 ;       // Read Community
+    	string   writeCommunity	 ;       // Write Community
+    	string   emsIp;	   		// 해당시스템을 관리하는 EMS IP
+    	string   equipUsageCode;	        // 장비 용도 코드(장비유형, SSW 유형이 포함됨)
+    	string   classTypeCode ; 	// 교환기 유형 코드(C4/C5)
+    	string   vendorCode	;  	// 제조사 코드
+    	string   modelName	;  	// 장비기종(모델)
+    	string   modelNamesCode	;        // 장비기종(모델코드)
+    	string   installLocation;	// 설치주소
+    	string   addr1;	  		// 지역
+    	string   degree;	 		// 계위
+    	string   snmpversion;		// SNMP 버전정보
+    	string   spc	;  		// SPC ID
+    	string   spcAlias;		// SPC 별칭
+    	string   equipmentName2;	        // 장비별칭2
+    	string   mainClsType;		// NEMAINCLSCODE
+    	string   subClsType;		// NESUBCLSCODE
+    	string   oltNesCode	;	// OLT 시설표준코드
+    	string   oltMstIp;		// OLTMSTIP
+    	string   oltNeAlias	;	// OLT 장치별칭
+    	string   oltModelName;		// OLT 모델명
+    	string   oltNeUsgCode;		// OLT 장치용도코드
+    	string   rnNesCode;		// RN시설표준코드
+    	string   rnNeAlias	;	// RN 장치별칭
+    	string   rnModelName;		// RN 모델명
+    	string   rnNeUsgCode;		// RN 장치용도코드
+    	string   oltLinkIp;		// OLT,4PAGW 연결 IP
+    	long      slln	 ;        	// AGW 시작 LLN
+    	string   ipsecgwIp;		// IPSecGWIP
+    	string   trapCommunity;	        // Trap Community
+    	string   mac;			// 장비MAC정보
+    	string   mgid;			// MGID
+    };
+
+    //--------------------------------------------------------------------------------------
+    // Interface Definition for KT Standard Common Input/Output 
+    //--------------------------------------------------------------------------------------
+    interface  xKTSIO
+    {
+     //--------------------------------------------------------------------------------------
+     // Method Definitions of  xKTSIO Interface
+     //---------------------------------------------------------------------------------------
+     void recvIt (   // Sync Operation & Single KtSioMsg
+       in KTSIOMsg in_KtSioMsg,
+       out KTSIOMsg out_KtSioMsg ) ;
+    
+     oneway void recvAsyncIt( // Async Operation & Single KtSioMsg
+       in KTSIOMsg in_KtSioMsg,
+       in xKTSIO  in_replyKTSIO) ;
+    
+     void recvBulkIt (  // Sync Operation & Multiple KtSioMsg
+       in KTSIOMsgSeq in_KtSioMsgSeq,
+       out KTSIOMsgSeq out_KtSioMsgSeq ) ;
+    
+     oneway void recvAsyncBulkIt( // Async Operation & Multiple KtSioMsg
+       in KTSIOMsgSeq in_KtSioMsgSeq,
+       in xKTSIO  in_replyKTSIO) ;
+
+       string echostring(
+       in string message);
+    } ;
+    
+    
+    //--------------------------------------------------------------------------------------
+    // Interface Definition for Access Gateway 
+    //--------------------------------------------------------------------------------------
+    interface  xAGW
+    {
+     enum enMsgType
+     {
+      MSGTYPE_None,     // 0
+      MSGTYPE_Alarm,    // 1
+      MSGTYPE_Fault,    // 2
+      MSGTYPE_Status,   // 3
+      MSGTYPE_Response, // 4
+      MSGTYPE_Request,  // 5
+      MSGTYPE_Stat,		// 6 ���
+      MSGTYPE_5MinNoti	// 7 
+  } ;
+
+     enum    enSysState4BcnNms
+     {
+         SYSSTATE_Unknown,  // 0
+         SYSSTATE_Not_Installed, // 1
+         SYSSTATE_Installed,  // 2
+         SYSSTATE_Inactive,  // 3
+         SYSSTATE_Idl,   // 4
+         SYSSTATE_Active,  // 5
+         SYSSTATE_Busy   // 6
+     } ;
+
+  //--------------------------------------------------------------------------------------
+  // OpCode Definition for  xAGW Interface
+  //--------------------------------------------------------------------------------------
+  // Session Management OpCode : 0x50000000 ~ 0x5000000x
+  const  long  OPCODE_REQP_Open_Session =  0x50000000 ;
+  const  long  OPCODE_REQP_Close_Session =  0x50000001 ;
+  const  long  OPCODE_REQP_Reopen_Session =  0x50000002 ;
+	
+  // EOCMS Server�� ���� ��� AGW ���/���� ���
+  const  long  OPCODE_REQP_Add_Managed_Agw =  0x50000010 ;
+  const  long  OPCODE_REQP_Del_Managed_Agw =  0x50000011 ;
+  const  long  OPCODE_REQP_Get_Managed_Agw =  0x50000012 ;
+
+     // Alarm OpCOde : 0x7Axxxxxx
+  //-------------------------------------------------------------
+  // Alarm Request/Response
+     const  long  OPCODE_REQP_GetCurrent_Alarm =  0x7A000001 ;
+     const  long  OPCODE_REQP_GetHistory_Alarm =  0x7A000002 ;
+	
+  //-------------------------------------------------------------
+  // POTS Alarm Event
+  const  long  OPCODE_NOTI_System_Down  =  0x7A000010 ;
+  const  long  OPCODE_NOTI_System_Clock_Inconsistency=  0x7A000011;
+  const  long  OPCODE_NOTI_Processor_Signle_Down =  0x7A000012 ;
+  const  long  OPCODE_NOTI_Processor_Dual_Down =  0x7A000013 ;
+  const  long  OPCODE_NOTI_Processor_Abnormal  =  0x7A000014 ;
+  const  long  OPCODE_NOTI_Processor_Overload  =  0x7A000015 ;
+  const  long  OPCODE_NOTI_Unit_Delete   =  0x7A000016 ;
+  const  long  OPCODE_NOTI_Unit_FuncFail  =  0x7A000017 ;
+  const  long  OPCODE_NOTI_Unit_PowerFail  =  0x7A000018 ;
+	
+  const  long  OPCODE_NOTI_RefClock_CableDelete =  0x7A000040 ;
+  const  long  OPCODE_NOTI_Cable_Delete   =  0x7A000041 ;
+  const  long  OPCODE_NOTI_Clock_Fail   =  0x7A000042 ;
+  const  long  OPCODE_NOTI_V52_LinkPba_AccessFail =  0x7A000043 ;
+  const  long  OPCODE_NOTI_V52_Interface_OOS  =  0x7A000044 ;
+	
+  const  long  OPCODE_NOTI_ATM_PortFault  =  0x7A000060 ;
+  const  long  OPCODE_NOTI_ATM_HotLinkFault  =  0x7A000061 ;
+  const  long  OPCODE_NOTI_ATM_ULinkFault  =  0x7A000062 ;
+  const  long  OPCODE_NOTI_ATM_TrafficCntlFail  =  0x7A000063 ;
+	
+  const  long  OPCODE_NOTI_Env_InverterFail  =  0x7A000090 ;
+  const  long  OPCODE_NOTI_Env_BatteryFail  =  0x7A000091 ;
+  const  long  OPCODE_NOTI_Env_FuseFail  =  0x7A000092 ;
+  const  long  OPCODE_NOTI_Env_ACPowerFail  =  0x7A000093 ;
+  const  long  OPCODE_NOTI_Env_PowerDistFuseShort =  0x7A000094 ;
+  const  long  OPCODE_NOTI_Env_FireAlarm  =  0x7A000095 ;
+  const  long  OPCODE_NOTI_Env_TemperatureAlarm  =  0x7A000096 ;
+  const  long  OPCODE_NOTI_Env_HumidityAlarm  =  0x7A000097 ;
+  const  long  OPCODE_NOTI_Env_DoorOpenAlarm  =  0x7A000098 ;
+  const  long  OPCODE_NOTI_Env_FloodAlarm  =  0x7A000099 ;
+  const  long  OPCODE_NOTI_Env_FanAlarm  =  0x7A00009A ;
+  const  long  OPCODE_NOTI_Env_RectifierAlarm  =  0x7A00009B ;
+  const  long  OPCODE_NOTI_Env_BatteryFuseAlarm  =  0x7A00009C ;
+
+  //-------------------------------------------------------------
+  // DSLAM Alarm
+     const  long  OPCODE_NOTI_Dslam_PbaDelete  =  0x7A0000B1 ;
+     const  long  OPCODE_NOTI_Dslam_EqptControllerFail=  0x7A0000B2 ;
+     const  long  OPCODE_NOTI_Dslam_EqptInternalHwFail=  0x7A0000B3 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_RS_LOS  =  0x7A0000B4 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_MS_LOS  =  0x7A0000B5 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_AU4_LOS  =  0x7A0000B6 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_RS_LOF   =  0x7A0000B7 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_MS_LOF  =  0x7A0000B8 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_AU4_LOF  =  0x7A0000B9 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_RS_BER   =  0x7A0000BA ;
+     const  long  OPCODE_NOTI_Dslam_STM1_MS_BER  =  0x7A0000BB ;
+     const  long  OPCODE_NOTI_Dslam_STM1_AU4_BER  =  0x7A0000BC ;
+     const  long  OPCODE_NOTI_Dslam_STM1_RS_SD   =  0x7A0000BD ;
+     const  long  OPCODE_NOTI_Dslam_STM1_MS_SD   =  0x7A0000BE ;
+     const  long  OPCODE_NOTI_Dslam_STM1_AU4_SD  =  0x7A0000BF ;
+     const  long  OPCODE_NOTI_Dslam_STM1_RS_AIS   =  0x7A0000C0 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_MS_AIS   =  0x7A0000C1 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_AU4_AIS  =  0x7A0000C2 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_RS_LOC  =  0x7A0000C3 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_MS_LOC  =  0x7A0000C4 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_AU4_LOC  =  0x7A0000C5 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_RS_LOP   =  0x7A0000C6 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_MS_LOP  =  0x7A0000C7 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_AU4_LOP  =  0x7A0000C8 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_RS_RDI   =  0x7A0000C9 ;
+     const  long  OPCODE_NOTI_Dslam_STM1_MS_RDI   =  0x7A0000CA ;
+     const  long  OPCODE_NOTI_Dslam_STM1_AU4_RDI  =  0x7A0000CB ;
+
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VP_LOC  =  0x7A0000CC ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VC_LOC  =  0x7A0000CD ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VP_SEG_AIS =  0x7A0000CE ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VC_SEG_AIS =  0x7A0000CF ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VP_SEG_RDI =  0x7A0000D0 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VC_SEG_RDI =  0x7A0000D1 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Up_VC_LOC  =  0x7A0000D2 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Up_VC_SEG_AIS  =  0x7A0000D3 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Up_VC_SEG_RDI  =  0x7A0000D4 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VP_END_AIS =  0x7A0000D5 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VC_END_AIS =  0x7A0000D6 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Up_VC_END_AIS =  0x7A0000D7 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VP_END_RDI =  0x7A0000D8 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Down_VC_END_RDI=  0x7A0000D9 ;
+     const  long  OPCODE_NOTI_Dslam_ATM_Up_VC_END_RDI =  0x7A0000DA ;
+
+     const  long  OPCODE_NOTI_Dslam_DSL_LOS  =  0x7A0000DB ;
+     const  long  OPCODE_NOTI_Dslam_DSL_LOF  =  0x7A0000DC ;
+     const  long  OPCODE_NOTI_Dslam_DSL_LOC  =  0x7A0000DD ;
+     const  long  OPCODE_NOTI_Dslam_DSL_NCD  =  0x7A0000DE ;
+
+     const  long  OPCODE_NOTI_Dslam_DSL_LOSWS  =  0x7A0000DF ;
+     const  long  OPCODE_NOTI_Dslam_DSL_UAS  =  0x7A0000E0 ;
+     const  long  OPCODE_NOTI_Dslam_DSL_ES  =  0x7A0000E1 ;
+     const  long  OPCODE_NOTI_Dslam_DSL_SES  =  0x7A0000E2 ;
+
+     const  long  OPCODE_NOTI_Dslam_ShelfStatusAbnormal =  0x7A0000E3 ;
+     const  long  OPCODE_NOTI_Dslam_IPCFail  =  0x7A0000E4 ;
+
+  //-------------------------------------------------------------
+  // EMS Alarm
+     const  long  OPCODE_NOTI_Ems_ProcAlarm  =  0x7A000E00 ;
+     const  long  OPCODE_NOTI_Ems_CpuAlarm  =  0x7A000E01 ;
+     const  long  OPCODE_NOTI_Ems_FssAlarm  =  0x7A000E02 ;
+     const  long  OPCODE_NOTI_Ems_MemAlarm  =  0x7A000E03 ;
+     const  long  OPCODE_NOTI_Ems_DbAlarm  =  0x7A000E04 ;
+     const  long  OPCODE_NOTI_Ems_NetwAlarm  =  0x7A000E05 ;
+
+  //--------------------------------------
+     // Fault OpCode : 0x7Fxxxxxx
+  //--------------------------------------
+    
+  //--------------------------------------
+     // Configuration OpCode : 0x7Cxxxxxx
+  //--------------------------------------
+     const  long  OPCODE_REQP_GetSysId_Config =  0x7C000001 ;
+     const  long  OPCODE_REQP_GetSubSysId_Config =  0x7C000002 ;
+
+     const  long  OPCODE_NOTI_Create_SysConfig =  0x7C000030 ;
+     const  long  OPCODE_NOTI_Delete_SysConfig =  0x7C000031 ;
+     const  long  OPCODE_NOTI_Change_SysConfig =  0x7C000032 ;
+     const  long  OPCODE_NOTI_Create_SubSysConfig =  0x7C000033 ;
+     const  long  OPCODE_NOTI_Delete_SubSysConfig =  0x7C000034 ;
+     const  long  OPCODE_NOTI_Change_SubSysConfig =  0x7C000035 ;
+
+	//NESS needs all AGW configuration (2007-11-15)
+	const long OPCODE_REQP_GetAllSys_Config = 0x7C000100 ;
+    
+        //--------------------------------------
+        // Only for BcN NMS Integration of configuration & notification
+        // Configuration OpCode : 0x7C001xxx
+        //--------------------------------------
+        const  long     OPCODE_REQP_GetEms_Config4BcnNms   =  0x7C001000 ;
+        const  long     OPCODE_REQP_GetSys_Config4BcnNms   =  0x7C001001 ;
+        const  long     OPCODE_REQP_GetSubSys_Config4BcnNms=  0x7C001002 ;
+
+        const  long     OPCODE_NOTI_Dump_PerfData4BcnNms   =  0x7C001100 ;
+
+	/***********************************************
+	* 2006�� �߰� �׸�
+	***********************************************/
+	const long	OPCODE_REQP_EMS_CONFIG = 0x7C002000;
+	const long	OPCODE_REQP_AGW_CONFIG = 0x7C002001;
+	const long  OPCODE_REQP_CARD_CONFIG = 0x7C002002;
+	const long  OPCODE_REQP_PORT_CONFIG = 0x7C002003;
+	const long  OPCODE_REQP_NODEALL_CONFIG = 0x7C002010;
+	const long	OPCODE_REQP_OBJSTATE_CONFIG = 0x7C002011;
+	const long  OPCODE_REQP_MMC_CONFIG = 0x7C002004;
+	const long  OPCODE_REQP_LOOPBACK_CONFIG = 0x7C002005;
+	const long  OPCODE_REQP_RESET_CONFIG = 0x7C002006;
+	const long  OPCODE_REQP_STATUS_CONFIG = 0x7C002007;
+	const long	OPCODE_REQP_PKGSEND_CONFIG = 0x7C002008;
+	const long  OPCODE_REQP_PKGDIST_CONFIG = 0x7C002009;
+	const long	OPCODE_REQP_OP_CONFIG = 0x7C00200A;
+	const long	OPCODE_REQP_OP_RESOURCE_CONFIG = 0x7C00200B;
+	
+	const long	OPCODE_ALARM_EVENT = 0x7C00F001;
+	const long	OPCODE_STATE_EVENT = 0x7C00F002;
+	const long	OPCODE_STATISTICS_EVENT = 0x7C00F003;
+
+  //--------------------------------------------------------------------------------------
+     // Test OpCode : 0x7Bxxxxxx
+  //--------------------------------------------------------------------------------------
+     const  long  OPCODE_REQP_DialTone_Test =  0x7B000001 ;
+    
+  //--------------------------------------------------------------------------------------
+     // AGW Loading OpCode : 0x7Exxxxxx
+  //--------------------------------------------------------------------------------------
+     const  long  OPCODE_NOTI_AgwSystem_LoadingState =  0x7E000001 ;
+  const  long  OPCODE_NOTI_AgwProcessor_LoadingState =  0x7E000002 ;
+  const  long  OPCODE_NOTI_AgwBlock_LoadingState  =  0x7E000003 ;
+
+  //--------------------------------------------------------------------------------------
+     // AGW-���� ���� ��� OpCode : 0x7Fxxxxxx
+  //--------------------------------------------------------------------------------------
+  const  long  OPCODE_REQP_SetMsgFilter   =  0x7F000001 ;
+  const  long  OPCODE_REQP_GetMsgFilter   =  0x7F000002 ;
+
+  //--------------------------------------------------------------------------------------
+     // AGW-Start/Stop Status OpCode : 0x6Fxxxxxx
+  //--------------------------------------------------------------------------------------
+     const  long  OPCODE_NOTI_AgwEms_Start =  0x6F000001 ;
+     const  long  OPCODE_NOTI_AgwEms_Stop =  0x6F000002 ;
+
+  //--------------------------------------------------------------------------------------
+     // AGW-EMS Resource Status OpCode : 0x6Exxxxxx
+  //--------------------------------------------------------------------------------------
+  const  long  OPCODE_NOTI_AgwEms_ProcState  =  0x6E000001 ;
+  const  long  OPCODE_NOTI_AgwEms_CpuState  =  0x6E000002 ;
+  const  long  OPCODE_NOTI_AgwEms_HddState  =  0x6E000003 ;
+  const  long  OPCODE_NOTI_AgwEms_DbState  =  0x6E000004 ;
+  const  long  OPCODE_NOTI_AgwEms_MemState  =  0x6E000005 ;
+
+	/***********************************************
+	* 2007�� �߰� �׸�
+	***********************************************/
+  //--------------------------------------------------------------------------------------
+     // AGW-EMS Interface IP OpCode : 
+  //--------------------------------------------------------------------------------------
+	const long	OPCODE_REQP_OP_VOPSERVICEIP_CONFIG = 0x7C00200C;
+
+  //--------------------------------------------------------------------------------------
+     // AGW-COL Code Change OpCode : 
+  //--------------------------------------------------------------------------------------
+	const long	OPCODE_REQP_OP_CHANGECOLCODE_CONFIG = 0x7C00200D;
+
+    
+  //--------------------------------------------------------------------------------------
+     // AGW Type Definition for  xAGW Interface
+     //--------------------------------------------------------------------------------------
+     const  long  AGWTYPE_LG  =  90 ;
+     const  long  AGWTYPE_SS =  91 ;
+     const  long  AGWTYPE_AL =  92 ;
+     const  long  AGWTYPE_LT =  93 ;
+     const  long  AGWTYPE_MR =  94 ;
+     const  long  AGWTYPE_ET =  95 ;
+    
+    
+     //--------------------------------------------------------------------------------------
+     // AGW-EMS Type Definition for  xAGW Interface
+     //--------------------------------------------------------------------------------------
+     const  long  AGWEMSTYPE_LG =  100 ;
+     const  long  AGWEMSTYPE_SS =  101 ;
+     const  long  AGWEMSTYPE_AL =  102 ;
+     const  long  AGWEMSTYPE_LT =  103 ;
+     const  long  AGWEMSTYPE_MR=  104 ;
+     const  long  AGWEMSTYPE_ET =  105 ;
+    
+     //--------------------------------------------------------------------------------------
+     // Group Definition for  xAGW Interface
+     //--------------------------------------------------------------------------------------
+     const  long  SVCGRP_Sys  =  1 ;
+     const  long  SVCGRP_V5  =  2 ;
+     const  long  SVCGRP_Sli  =  3 ;
+     const  long  SVCGRP_Utd  =  4 ;
+     const  long  SVCGRP_Utf  =  5 ;
+     const  long  SVCGRP_Prc  =  6 ;
+     const  long  SVCGRP_pwr  =  7 ;
+     const  long  SVCGRP_Swt  =  8 ;
+     const  long  SVCGRP_Clk  =  9 ;
+     const  long  SVCGRP_Sig  =  10 ;
+     const  long  SVCGRP_Trk  =  11 ;
+     const  long  SVCGRP_Tst  =  12 ;
+     const  long  SVCGRP_Cbl  =  13 ;
+     const  long  SVCGRP_Atm  =  14 ;
+     const  long  SVCGRP_Dsl  =  15 ;
+     const  long  SVCGRP_Env  =  16 ;
+    
+     //--------------------------------------------------------------------------------------
+     // OMIT Value Definition ( OMIT means that value is not used )
+     //--------------------------------------------------------------------------------------
+  const  char  OMIT_Byte = '\x7E' ;
+  const  short OMIT_Short = 0x7EEE ;
+  const  long  OMIT_Int = 0x7EEEEEEE ;
+  const  long  OMIT_Long = 0x7EEEEEEE ;
+
+     //--------------------------------------------------------------------------------------
+     // Data Structure Definition for  xAGW Interface
+     //--------------------------------------------------------------------------------------
+    
+  // Ư�� EOCMS-L ������ �����ϰ��� �ϴ� AGW�� EMS�� ���, ����, ��ȸ �ϱ����� ���Ǵ� �ڷ� ����
+     struct stKtAgwEocmsManagedAgwInfo
+     {
+      string eocmsId ;   // EOCMS Id
+      strSeq agwIdSeq ;   // Access Gateway Id Sequence
+  } ;
+
+  // Session Open, Reopen, Close �� ���� ?���Ǵ� �ڷ� ����
+     struct stKtAgwSessionInfo
+     {
+      string eocmsId ;   // EOCMS Id
+      string eocmsMdIOR ;  // EOCMS �� �����Ǿ��ϴ� Block�� IOR string
+  } ;
+
+  // ��� ���� ���� �ڷ� ����
+     // Use this structure in case of OpCode : 0x7Axxxxxx
+     struct stKtAgwAlarmEvent
+     {
+      short agwType ;   // Access Gateway Type
+      string agwId ;    // Access Gateway Id
+      long alarmId ;   // Alarm Id ( Alarm OpCode )
+      short severity ;   // Alarm Severity
+      short correlationFlag ; // Alarm Correlation Flag
+      string connectedEx ;  // Connected Exchange Truman Code
+      short tid ;    // Target System Id
+      short ssid ;    // SubSystem Id
+      short oid ;    // SubSystem Object Id
+      short rid ;    // System Rack Id
+      short sid ;    // System Shelf Id
+      short cid ;    // System Circuit Id
+      short lid ;    // Line or Port Id
+      string date ;    // Alarm Noti. Date (YYYY-MM-DD hh:mm:ss)
+     } ;
+     // typedef sequence<stKtAgwAlarmEvent> stKtAgwAlarmEventSeq ;
+
+  // Ȯ��� ��� ���� ���� �ڷ� ����
+     // Use this structure in case of OpCode : 0x7Axxxxxx
+     struct stKtAgwAlarmExtEvent
+     {
+      short agwType ;   // Access Gateway Type
+      string agwId ;    // Access Gateway Id
+      string nativeAlarmCode ; // (�ű�) ���� ������ Alarm Code
+      wstring nativeDeviceName ; // (�ű�) ���� ������ Location ����( '/'�� �����ڷ� �Ѵ� )
+      long alarmId ;   // Alarm Id ( Alarm OpCode )
+      short severity ;   // Alarm Severity
+      short correlationFlag ; // Alarm Correlation Flag
+      string connectedEx ;  // Connected Exchange Truman Code
+      short tid ;    // Target System Id
+      short ssid ;    // SubSystem Id
+      short oid ;    // SubSystem Object Id
+      short rid ;    // System Rack Id
+      short sid ;    // System Shelf Id
+      short cid ;    // System Circuit Id
+      short lid ;    // Line or Port Id
+      string date ;    // Alarm Noti. Date (YYYY-MM-DD hh:mm:ss)
+      string reserved1 ;   // �����ʵ�1
+      string reserved2 ;   // �����ʵ�2
+      string reserved3 ;   // �����ʵ�3
+     } ;
+
+  // History ��� ���� �䱸 �ڷ� ����
+  // Use this structure in case of OpCode : 0x7A000002
+  struct stKtAgwAlarmHistoryReq
+  {
+   string agwId ;   // Access Gateway Id
+   string fromDate ;  // Start Date(YYYY-MM-DD hh:mm:ss)
+   string toDate ;  // End Date(YYYY-MM-DD hh:mm:ss)
+  } ;
+
+  // ���� ��� ���� ���� �ڷ� ����
+  // Use this structure in case of OpCode : 0x7A000001
+     struct stKtAgwAlarmCurrentResp
+     {
+      short agwType ;   // Access Gateway Type
+      string agwId ;    // Access Gateway Id
+      long alarmId ;   // Alarm Id ( Alarm OpCode )
+      short severity ;   // Alarm Severity
+      short correlationFlag ; // Alarm Correlation Flag
+      string connectedEx ;  // Connected Exchange Truman Code
+      short tid ;    // Target System Id
+      short ssid ;    // SubSystem Id
+      short oid ;    // SubSystem Object Id
+      short rid ;    // System Rack Id
+      short sid ;    // System Shelf Id
+      short cid ;    // System Circuit Id
+      short lid ;    // Line or Port Id
+      string date ;    // Alarm Noti. Date (YYYY-MM-DD hh:mm:ss)
+     } ;
+     //typedef sequence<stKtAgwAlarmResp> stKtAgwAlarmRespSeq ;
+
+  // Ȯ��� ���� ��� ���� ���� �ڷ� ����
+  // Use this structure in case of OpCode : 0x7A000001
+     struct stKtAgwAlarmExtCurrentResp
+     {
+      short agwType ;   // Access Gateway Type
+      string agwId ;    // Access Gateway Id
+      string nativeAlarmCode ; // (�ű�) ���� ������ Alarm Code
+      wstring nativeDeviceName ; // (�ű�) ���� ������ Location ����( '/'�� �����ڷ� �Ѵ� )
+      long alarmId ;   // Alarm Id ( Alarm OpCode )
+      short severity ;   // Alarm Severity
+      short correlationFlag ; // Alarm Correlation Flag
+      string connectedEx ;  // Connected Exchange Truman Code
+      short tid ;    // Target System Id
+      short ssid ;    // SubSystem Id
+      short oid ;    // SubSystem Object Id
+      short rid ;    // System Rack Id
+      short sid ;    // System Shelf Id
+      short cid ;    // System Circuit Id
+      short lid ;    // Line or Port Id
+      string date ;    // Alarm Noti. Date (YYYY-MM-DD hh:mm:ss)
+      string reserved1 ;   // �����ʵ�1
+      string reserved2 ;   // �����ʵ�2
+      string reserved3 ;   // �����ʵ�3
+     } ;
+	 typedef sequence<stKtAgwAlarmExtCurrentResp> stKtAgwAlarmExtCurrentRespSeq ;
+
+  // History ��� ���� ���� �ڷ� ����
+  // Use this structure in case of OpCode : 0x7A000002
+     struct stKtAgwAlarmHistoryResp
+     {
+      short agwType ;  // Access Gateway Type
+      string agwId ;  // Access Gateway Id
+      long alarmId ;  // Alarm Id ( Alarm OpCode )
+      short severity ;  // Alarm Severity
+      short correlationFlag ; // Alarm Correlation Flag
+      string connectedEx ; // Connected Exchange Truman Code
+      short tid ;  // Target System Id
+      short ssid ;  // SubSystem Id
+      short oid ;  // SubSystem Object Id
+      short rid ;  // System Rack Id
+      short sid ;  // System Shelf Id
+      short cid ;  // System Circuit Id
+      short lid ;  // Line or Port Id
+   short recovery ;  // Alarm Recovery or Occurrence. Flag
+      string occurrenceDate ; // Alarm Occurrence. Date (YYYY-MM-DD hh:mm:ss)
+   string recoveryDate ; // Alarm Recovery  Date (YYYY-MM-DD hh:mm:ss)
+     } ;
+     //typedef sequence<stKtAgwAlarmResp> stKtAgwAlarmRespSeq ;
+
+  // Ȯ��� History ��� ���� ���� �ڷ� ����
+  // Use this structure in case of OpCode : 0x7A000002
+     struct stKtAgwAlarmExtHistoryResp
+     {
+      short agwType ;   // Access Gateway Type
+      string agwId ;    // Access Gateway Id
+      string nativeAlarmCode ; // (�ű�) ���� ������ Alarm Code
+      wstring nativeDeviceName ; // (�ű�) ���� ������ Location ����( '/'�� �����ڷ� �Ѵ� )
+      long alarmId ;   // Alarm Id ( Alarm OpCode )
+      short severity ;   // Alarm Severity
+      short correlationFlag ; // Alarm Correlation Flag
+      string connectedEx ;  // Connected Exchange Truman Code
+      short tid ;    // Target System Id
+      short ssid ;    // SubSystem Id
+      short oid ;    // SubSystem Object Id
+      short rid ;    // System Rack Id
+      short sid ;    // System Shelf Id
+      short cid ;    // System Circuit Id
+      short lid ;    // Line or Port Id
+	short recovery ;   // Alarm Recovery or Occurrence. Flag
+      string occurrenceDate ; // Alarm Occurrence. Date (YYYY-MM-DD hh:mm:ss)
+   string recoveryDate ;  // Alarm Recovery  Date (YYYY-MM-DD hh:mm:ss)
+      string reserved1 ;   // �����ʵ�1
+      string reserved2 ;   // �����ʵ�2
+      string reserved3 ;   // �����ʵ�3
+     } ;
+
+   // System ���� ���� �̺�Ʈ �ڷ� ����
+   // Use this structure in case of OpCode : 0x7C000030 ~ 0x7C000032
+     struct stKtAgwSysConfEvent
+     {
+      short agwType ;  // Access Gateway Type
+      string agwId ;  // Access Gateway Id
+      string connectedEx ; // Connected Exchange Truman Code
+      string date ;  // Event Noti. Date (YYYY-MM-DD hh:mm:ss)
+     } ;
+
+  // SubSystem ���� ���� �̺�Ʈ �ڷ� ����
+  // Use this structure in case of OpCode : 0x7C000033 ~ 0x7C000035
+  struct stKtAgwSubSysConfEvent
+  {
+   short agwType ;  // Access Gateway Type
+   string agwId ;  // Access Gateway Id
+   string connectedEx ; // ����� ��ȯ���� Truman Code
+   short ssid ;  // AGW ���� ����ý��� Id
+   string date ;  // Event Noti. Date (YYYY-MM-DD hh:mm:ss)
+  } ;
+
+
+  // AGW(NE) ���� ���� �䱸
+  // KtSIOMsg Header ���� ���� �̿��Ѵ�. ( OpCode ���� �̿��Ѵ� )
+
+  // AGW ����ý��� ���� ���� �䱸
+  struct stKtAgwSubSysConfReq
+  {
+   string agwId ;  // Access Gateway Id
+  } ;
+
+  // AGW(NE) ���� ���� ����
+  struct stKtAgwSysConfResp
+  {
+   short agwType ;  // Access Gateway Type
+   string agwId ;  // Access Gateway Id
+   string connectedEx ; // ����� ��ȯ���� Truman Code
+   string date ;  // Event Response. Date (YYYY-MM-DD hh:mm:ss)
+  } ;
+
+  // ����ý��� ���� ���� ����
+  struct stKtAgwSubSysConfResp
+  {
+   short agwType ;  // Access Gateway Type
+   string agwId ;  // Access Gateway Id
+   string connectedEx ; // ����� ��ȯ���� Truman Code
+   short ssid ;  // AGW ���� ����ý��� Id
+   string date ;  // Event Noti. Date (YYYY-MM-DD hh:mm:ss)
+  } ;
+
+  // AGW EMS�� CPU ���� Event �ڷ� ����
+     struct stKtAgwEMSCpuStateEvent
+     {
+      short agwEmsType ; // Access Gateway EMS Type
+      string agwEmsId ; // Access Gateway EMS Id
+      short idlePercent ; // Idle Percent ( % )
+      short usrPercent ; // User Used Percent ( % )
+      short sysPercent ; // Kernel Used Percent ( % )
+      short ioWaitPercent ; // IOWait Used Percent ( % )
+      short swapPercent ; // Swap Used Percent ( % )
+      string date ;  // Event Noti. Date (YYYY-MM-DD hh:mm:ss)
+     } ;
+    
+  // AGW EMS�� ���μ��� ���� Event �ڷ� ����
+     struct stKtAgwEMSProcStateEvent
+     {
+      short agwEmsType ; // Access Gateway EMS Type
+      string agwEmsId ; // Access Gateway EMS Id
+      string procName ;  // Process Name
+      long procId ;  // Process Id
+      long pprocId ;  // Parent Process Id
+      string procState ;  // Process State
+      string procStartTime ; // Process Start Time(YYYY-MM-DD hh:mm:ss)
+      long procTotalSize ; // Process Total Size
+      long procResSize ; // Process Resident Size
+      string procCpuUsage ; // Process CPU Usage(���� ��뷮)
+      string procCpuWeight ; // Process CPU Weight ( ���� ��� % )
+      string date ;  // Event Noti. Date (YYYY-MM-DD hh:mm:ss)
+     } ;
+     //typedef sequence<stKtAgwEMSProcStateEvent> stKtAgwEMSProcStateEventSeq ;
+    
+     // AGW EMS�� ���� �ý��� ���� Event �ڷ� ����
+     struct stKtAgwEMSHddStateEvent
+     {
+      short agwEmsType ;  // Access Gateway EMS Type
+      string agwEmsId ;  // Access Gateway EMS Id
+      string fileSystemName ;  // File System Name
+      long totalSize ;   // Total Size ( Kbytes )
+      long usedSize ;   // Used Size ( Kbytes )
+      long freeSize ;   // Free Size ( Kbytes )
+      short usedPercent ;  // Used Percent ( % )
+      string date ;   // Event Noti. Date (YYYY-MM-DD hh:mm:ss)
+     } ;
+     //typedef sequence<stKtAgwEMSHddStateEvent> stKtAgwEMSHddStateEventSeq ;
+   	
+     // AGW EMS�� �����ͺ��̽� ���� Event �ڷ� ����
+     struct stKtAgwEMSDbStateEvent
+     {
+      short agwEmsType ; // Access Gateway EMS Type
+      string agwEmsId ; // Access Gateway EMS Id
+      float totalSize ;  // Total Size ( Kbytes )
+      float usedSize ;  // Used Size ( Kbytes )
+      float freeSize ;  // Free Size ( Kbytes )
+      float usedPercent ; // Used Percent ( % )
+      string date ;  // Event Noti. Date(YYYY-MM-DD hh:mm:ss)
+     } ;
+    
+  // AGW EMS�� �޸� ���� Event �ڷ� ����
+     struct stKtAgwEMSMemStateEvent
+     {
+      short agwEmsType ; // Access Gateway EMS Type
+      string agwEmsId ; // Access Gateway EMS Id
+      float realTotalSize ; // Real Total Size ( Mbytes )
+      float realFreeSize ; // Real Free Size ( Mbytes )
+      float swapUsedSize ; // Swap Used Size ( Mbytes )
+      float swapFreeSize ; // Swap Free Size ( Mbytes )
+      string date ;  // Event Noti. Date(YYYY-MM-DD hh:mm:ss)
+     } ;
+
+  // AGW �ý��� Loading Event �ڷ� ����
+  struct stKtAgwSystemLoadingStateEvent
+  {
+   short agwType ;  // Access Gateway Type
+   string agwId ;  // Access Gateway Id
+   short loadingState ; // Loading State ( Start / End / Fail )
+   string date ;  // Event �߻� �ð�(YYYY-MM-DD hh:mm:ss)
+  } ;
+
+  // AGW ���μ��� Loading Event �ڷ� ����
+  struct stKtAgwProcessorLoadingStateEvent
+  {
+   short agwType ;  // Access Gateway Type
+   string agwId ;  // Access Gateway Id
+   short tid ;  // Target System Id
+      short ssid ;  // SubSystem Id
+      short oid ;  // SubSystem Object Id
+      short rid ;  // System Rack Id
+      short sid ;  // System Shelf Id
+      short cid ;  // System Circuit Id
+      short lid ;  // Line or Port Id
+   string procName ; // Processor Name
+   short loadingState ; // Loading State ( Start / End / Fail )
+   string date ;  // Event �߻� �ð�(YYYY-MM-DD hh:mm:ss)
+  } ;
+
+  // AGW �� Loading Event �ڷ� ����
+  struct stKtAgwBlockLoadingStateEvent
+  {
+   short agwType ;  // Access Gateway Type
+   string agwId ;  // Access Gateway Id
+   short tid ;  // Target System Id
+      short ssid ;  // SubSystem Id
+      short oid ;  // SubSystem Object Id
+      short rid ;  // System Rack Id
+      short sid ;  // System Shelf Id
+      short cid ;  // System Circuit Id
+      short lid ;  // Line or Port Id
+   string blockName ; // Block Name
+   short loadingState ; // Loading State ( Start / End / Fail )
+   string date ;  // Event �߻� �ð�(YYYY-MM-DD hh:mm:ss)
+  } ;
+
+  // EMS �ý��� Starting Event �ڷ� ����
+  struct stKtAgwEMSRunStateEvent
+  {
+   short agwEmsType ; // Access Gateway Type
+   string agwEmsId ; // Access Gateway Id
+   short emsState ;  // EMS Running State : enSystemState
+   string date ;  // Event �߻� �ð�(YYYY-MM-DD hh:mm:ss)
+  } ;
+
+  struct stKtAgwSetEventFilter
+  {
+   short agwType ;  // Access Gateway Type
+   string agwId ;  // Access Gateway Id
+   short msgType ;  // �޽��� Type
+   long opCode ;  // 0: �ش� ��� MsgType
+   short setFlag ;  // SWT_On, : ���� , SWT_Off : ����
+  } ;
+
+  struct  stKtAgwGetEventFilterReq
+  {
+      short agwType ;  // Access Gateway Type
+      string agwId ;   // Access Gateway Id
+  } ;
+  struct  stKtAgwGetEventFilterResp
+  {
+   short agwType ;  // Access Gateway Type
+   string agwId ;   // Access Gateway Id
+   short msgType ;  // �޽��� Type
+   long opCode ;   // 0: �ش� ��� MsgType
+   short setFlag ;   // SWT_On, : ���� , SWT_Off : ����
+  } ;
+
+  //------------------------------------------------------------------
+  // New defined structure for BcN NMS integration : 2005-09-14
+  //------------------------------------------------------------------
+
+        // EMS Configuration Information for BcN NMS
+        // Use this structure for BcN NMS integration
+        // OpCode : 0x7C001000
+        struct  stKtAgwEmsConfig4BcnNmsResp
+        {
+            string  emsId;              // EMS Id(M) : use KT's EMS Colcode
+            string  emsName;            // EMS Name(M): use EMS's hostname
+            string  equipmentId;        // Equipment Id(M) : use KT's EMS Colcode
+            string  officeId;           // KT's brance office name(O)
+            string  headquarterId;      // KT's headquarter name(O)
+            string  vendorName;         // EMS vendor's name(O) : LG , SAMSUNG, LUCENT ...
+            string  managementIpAddress;// EMS's Ip address(M)
+            string  manufactureDate;    // EMS's installed date in KT official site(M), (YYYY-MM-DD hh:mm:ss)
+            string  serialNumber;       // EMS server's serial number(O) :
+                   //  In case of SUN system, use uname() function.
+                   //  you can get following information -> SunOS linn 5.8 Generic_108528-14 sun4u
+            string  description;        // EMS's additional information(O)
+            long usageState;   // EMS's oprational state(O)
+                   // 0 : Unknown, 1: Not Installed, 2: Installed, 3: Inactive,
+                   // 4: Idle, 5: Active, 6: Busy
+                   // When AGW's EMS can be responsed, this value is set to value 5.
+                   // and any other value can not be set.
+        } ;
+
+        // NE  Configuration Information for BcN NMS
+        // Use this structure for BcN NMS integration
+        // OpCode : 0x7C001001
+        struct  stKtAgwSysConfig4BcnNmsResp
+        {
+            string  sysId;              // AGW System Id(M) : use KT's AGW Colcode
+            string  sysName ;           // AGW Name(M): use Vendor specified system name
+            string  equipmentId;        // Equipment Id(M) : use KT's AGW Colcode
+            string  emsId;              // EMS Id(M) : use KT's EMS Colcode
+            string  officeId;           // KT's brance office name for AGW(O)
+            string  headquarterId;      // KT's headquarter name for AGW(O)
+            string  vendorName;         // AGW vendor's name(O) : LG , SAMSUNG, LUCENT ...
+            string  managementIpAddress;// AGW's Ip address(M)
+            string  manufactureDate;    // AGW's installed date in KT official site(M), (YYYY-MM-DD hh:mm:ss)
+            string  serialNumber;       // AGW's serial number(O)
+            string  description;        // AGW's additional information(O)
+            long usageState;   // AGW's oprational state(O)
+                   // 0 : Unknown, 1: Not Installed, 2: Installed, 3: Inactive,
+                   // 4: Idle, 5: Active, 6: Busy
+                   // When AGW is not initialized or synchronized, this value is set to value 3.
+                   // and normal state is set to value 5.
+        } ;
+
+        // NE Subsystem Configuration Information Request for BcN NMS
+        // Use following structure for Request
+        // OpCode : 0x7C001002
+        // struct  stKtAgwSubSysConfReq
+
+        // NE Subsystem Configuration Information for BcN NMS
+        // Use this structure for BcN NMS integration
+        // OpCode : 0x7C001002
+        struct  stKtAgwSubSysConfig4BcnNmsResp
+        {
+            string  sysId;              // AGW System Id(M) : use KT's AGW Colcode
+            string  sysName ;           // AGW Name(M): use Vendor specified system name
+            string subSysId;   // AGW Sub-system Id(M) : use vendor specified name or KT's Colcode
+          //  of Sub-system
+            string  equipmentId;        // Equipment Id(M) : use vendor specified name or KT's Colcode
+          //  of Sub-system
+            string  emsId;              // EMS Id(M) : use KT's EMS Colcode
+            string  officeId;           // KT's brance office name for AGW sub-system(O)
+            string  headquarterId;      // KT's headquarter name for AGW sub-system(O)
+            string  vendorName;         // AGW vendor's name(O) : LG , SAMSUNG, LUCENT ...
+            string  managementIpAddress;// AGW sub-system's Ip address(M) : if does not exist, use AGW's Ip address
+            string  manufactureDate;    // AGW's installed date in KT official site(O), (YYYY-MM-DD hh:mm:ss)
+            string  serialNumber;       // AGW's serial number(O)
+            string  description;        // AGW's additional information(O)
+            long usageState;   // AGW sub-system's oprational state(O)
+                   // 0 : Unknown, 1: Not Installed, 2: Installed, 3: Inactive,
+                   // 4: Idle, 5: Active, 6: Busy
+                   // When AGW's sub-system is not initialized or synchronized, this value is set to value 3.
+                   // and normal state is set to value 5.
+        } ;
+
+        // All performance & statistics file dumping completion notification for BcN NMS
+        // Use this structure for BcN NMS integration
+        // OpCode : 0x7C001100
+        struct  stKtAgwPerfDumping4BcnNmsEvent
+        {
+            string  emsId;              // EMS Id(M) : use KT's EMS Colcode
+            string  sysId;              // AGW System Id(M) : use KT's AGW Colcode
+            string  fileLocation;       // Performance & statistics stored file name(full path, including filename)
+            string  repTime;            // Completed time to store performance data from all AGWs( YYYY-MM-DD hh:mm:ss)
+        } ;
+
+	//----------------------------------------------------------------------------------
+	// enum Structure
+	//----------------------------------------------------------------------------------
+	enum CardTypeEnum 
+	{
+		UNKNOWN_CARDTYPE,
+		SAPC_CARDTYPE, 
+		GPIC_CARDTYPE, 
+		GSIC_CARDTYPE, 
+		VOPC_CARDTYPE, 
+		THSC_CARDTYPE, 
+		GLSC_CARDTYPE, 
+		POWER_CARDTYPE, 
+		FAN_CARDTYPE,
+		NONE_CARDTYPE,
+		SCMU_CARDTYPE,
+		PSU_CARDTYPE,
+		NIU_CARDTYPE,
+		NSDU_CARDTYPE,
+		LTIU_CARDTYPE,
+		HTIU_CARDTYPE,
+		CMU_CARDTYPE,
+		SLU_64P_CARDTYPE,//�Ｚ
+		SLU_64E_CARDTYPE,
+		MCUN_CS_CARDTYPE,
+		VPU_A02_CARDTYPE,
+		SLU_32C_CARDTYPE,
+		DTU_A_CARDTYPE,
+		MCU_SUB_CARDTYPE,
+		INVC_CARDTYPE,//LG
+		INRC_CARDTYPE,
+		MCMC_S_CARDTYPE,
+		MC_RC_CARDTYPE,
+		POTC_C_CARDTYPE,
+		ESIC_CARDTYPE,
+		ESRC12T_CARDTYPE,
+		IOE1_CARDTYPE,//�罼Ʈ
+		RG_PACK_CARDTYPE,
+		CIU_CARDTYPE,
+		IPFM_CARDTYPE,
+		COMDAC_CARDTYPE,
+		POTS_CARDTYPE,
+		ICAP_CARDTYPE,
+		TEST_PACK_CARDTYPE,
+		ESIM_CARDTYPE,
+		SHDSL_CARDTYPE,
+		RGU_CARDTYPE,//�ҿ뷮 �罼Ʈ
+		PFU_CARDTYPE,
+		MEU_CARDTYPE,//�ҿ뷮 �Ｚ
+		SVU_CARDTYPE,
+		SEU_CARDTYPE,
+		DPU_CARDTYPE,
+		APU_CARDTYPE
+	};
+
+	enum ModeStatusEnum 
+	{
+		UNKNOWN_MODESTATUS, 
+		ACTIVE_MODESTATUS, 
+		STANDBY_MODESTATUS
+	};
+
+	enum PortTypeEnum 
+	{
+		UNKNOWN_PORTTYPE, 
+		FE_PORTTYPE, 
+		GE_PORTTYPE, 
+		T1_PORTTYPE, 
+		E1_PORTTYPE, 
+		STM1_PORTTYPE,
+		DS0
+	};
+
+	enum DeviceTypeEnum 
+	{
+		UNKNOWN_DEVICETYPE,	
+		POWER_DEVICETYPE, 
+		FAN_DEVICETYPE,
+		PROCESSOR_DEVICETYPE,
+		STORAGE_DEVICETYPE,
+		DSP_DEVICETYPE
+	};
+
+	enum UsageStateEnum 
+	{
+		UNKNOWN_USAGESTATE, 
+		NOTINSTALL_USAGESTATE, 
+		INSTALLED_USAGESTATE, 
+		INACTIVE_USAGESTATE, 
+		IDLE_USAGESTATE, 
+		ACTIVE_USAGESTATE, 
+		BUSY_USAGESTATE
+	};
+
+	enum TypeOfHolderEnum 
+	{
+		UNKNOWN_TYPEOFHOLDER, 
+		RACK_TYPEOFHOLDER, 
+		SHELF_TYPEOFHOLDER, 
+		SLOT_TYPEOFHOLDER
+	};
+
+	enum HolderStatusEnum 
+	{
+		UNKNOWN_HOLDERSTATUS, 
+		INSTALLANDACC_HOLDERSTATUS, 
+		INSTALLANDNOTACC_HOLDERSTATUS, 
+		NOTINSTALLED_HOLDERSTATUS, 
+		MISMATCH_HOLDERSTATUS, 
+		UNAVAILABLE_HOLDERSTATUS
+	};
+
+	enum StorageTypeEnum 
+	{
+		UNKNOWN_STORAGETYPE,
+		OTHER_STORAGETYPE, 
+		RAM_STORAGETYPE, 
+		VIRTUALMEMORY_STORAGETYPE, 
+		FIXEDDISK_STORAGETYPE, 
+		REMOVEABLEDISK_STORAGETYPE, 
+		FLOPPYDISK_STORAGETYPE, 
+		COMPACTDISC_STORAGETYPE, 
+		RAMDISK_STORAGETYPE,
+		FLASH_STORAGETYPE
+	};
+
+	enum IfTypeEnum 
+	{
+		UNKNOWN_IFTYPE, 
+		FE_IFTYPE, 
+		GE_IFTYPE, 
+		T1_IFTYPE, 
+		E1_IFTYPE, 
+		STM1_IFTYPE, 
+		IPINTERFACE_IFTYPE
+	};
+
+	enum OperStatusEnum 
+	{
+		UNKNOWN_OPERSTATUS, 
+		UP_OPERSTATUS, 
+		DOWN_OPERSTATUS, 
+		TESTING_OPERSTATUS
+	};   //operStatus, ifoperstatus
+
+	enum AdminStatusEnum 
+	{
+		UNKNOWN_ADMINSTATUS, 
+		TESTING_ADMINSTATUS, 
+		UNBLOCK_ADMINSTATUS, 
+		BLOCK_ADMINSTATUS, 
+		SHUTTINGDOWN_ADMINSTATUS
+	};
+
+	enum EquipStatusEnum 
+	{
+		UNKNOWN_EQUIPSTATUS, 
+		EQUIP_EQUIPSTATUS, 
+		NOTEQUIP_EQUIPSTATUS
+	};
+
+	enum IfSpeedEnum 
+	{
+		UNKNOWN_IFSPEED,
+		FE_IFSPEED, 
+		GE_IFSPEED, 
+		T1_IFSPEED, 
+		E1_IFSPEED, 
+		STM1_IFSPEED
+	};
+
+
+
+
+	enum SeverityEnum 
+	{
+		UNKNOWN_SEVERITY, 
+		CRITICAL_SEVERITY, 
+		MAJOR_SEVERITY, 
+		MINOR_SEVERITY, 
+		NOTHING_SEVERITY, 
+		CLEAR_SEVERITY
+	};
+
+	enum ObjectTypeEnum 
+	{
+		UNKNOWN_OBJECTTYPE,
+		EMS_OBJECTTYPE, 
+		ACCESAGW_OBJECTTYPE, 
+		EQUIPMENTHOLDER_OBJECTTYPE, 
+		CARD_OBJECTTYPE, 
+		DEVICE_OBJECTTYPE, 
+		PORT_OBJECTTYPE, 
+		LOGICALINTERFACE_OBJECTTYPE, 
+		IPINTERFACE_OBJECTTYPE,
+		POWER_OBJECTTYPE,
+		FAN_OBJECTTYPE,
+		PROCESSOR_OBJECTTYPE,
+		STORAGE_OBJECTTYPE,
+		DSP_OBJECTTYPE
+	};
+
+	enum ChangeTypeEnum 
+	{
+		DELETE_CHANGETYPE, 
+		CREATE_CHANGETYPE
+	};
+
+	//----------------------------------------------------------------------------------
+	// OMS
+	//----------------------------------------------------------------------------------
+	enum LoopBackStatusEnum
+	{
+		NOLOOP_LOOPBACKSTATUS,
+		REMOTE_LOOPBACKSTATUS,
+		LOCAL_LOOPBACKSTATUS
+	};
+
+	enum CompleteTypeEnum
+	{
+		SENDPACKAGE_COMPLETETYPE,
+		DISTRIBUTEPACKAGE_COMPLETETYPE
+	};
+
+	enum OpEnum
+	{
+		STOP_OP,
+		START_OP,
+		RESTART_OP
+	};
+
+	
+	//----------------------------------------------------------------------------------
+	// string Sequence for PerfEventSt Structure
+	//----------------------------------------------------------------------------------
+	struct stringSt
+	{
+		string		str;
+	};
+	typedef sequence<stringSt> stringStSeq;
+
+		struct CommonOptSt {
+			string   		vendorName; 			// ��� �̸�
+			string			manufactureDate; 		// �ذ�����
+			string   		serialNumber; 			// ��ǰ��ȣ
+			string			description; 			// ��Ÿ����
+		};
+
+//OpCode : 0x7C002000
+		struct EmsInfoSt
+		{
+			string			emsId;
+			string			emsName;
+			string			managementIpAddress;
+			string			opTime;
+			string			swVersion;
+			string			update;
+			UsageStateEnum	usageState;
+			CommonOptSt		varCommonOptSt;
+		};
+//OpCode : 0x7C002001
+		struct AgwInfoSt
+		{
+			string				agwId;
+			string				agwName;
+			string				equipmentId;
+			string				emsId;
+			string				managementIpAddress;
+			string				swVersion;
+			string				hwVersion;
+			string				swUpdate;
+			string				hwUpdate;
+			UsageStateEnum		usageState;
+			CommonOptSt			varCommonOptSt;
+		};
+		typedef sequence<AgwInfoSt> AgwInfoStSeq;
+
+//OpCode : 0x7C002002
+	//----------------------------------------------------------------------------------
+	// Common Card Index for Card Structure
+	//----------------------------------------------------------------------------------
+	struct CommonCardIdxSt
+	{
+		string			agwId;
+		string			rackId;
+		string			shelfId;
+		string			slotId;
+		string			cardId;
+		string       	cardType;
+	};
+
+	//----------------------------------------------------------------------------------
+	// Card Information Structure
+	//----------------------------------------------------------------------------------
+	struct CardInfoSt
+	{
+		CommonCardIdxSt		varCommonCardIdxSt;
+		OperStatusEnum		operStatus;
+		ModeStatusEnum		modeStatus;
+		AdminStatusEnum		adminStatus;
+		LoopBackStatusEnum	loopBackStatus;
+		ModeStatusEnum		protectionStatus;
+		string				alarmStatus;
+		string				failReason;
+		string				hwVersion;
+		string				fwVersion;
+		CommonOptSt			varCommonOptSt;
+		string				emsMngCardInfo; //2007-05-29 �߰� �̵���
+	};
+	typedef sequence<CardInfoSt> CardInfoStSeq;
+//OpCode : 0x7C002003
+	//----------------------------------------------------------------------------------
+	// Common Port Index for Port Structure
+	//----------------------------------------------------------------------------------
+	struct CommonPortIdxSt
+	{
+		CommonCardIdxSt		varCommonCardIdxSt;
+		string				portId;
+		PortTypeEnum		portType;
+		string				portName;
+	};
+	typedef sequence<CommonPortIdxSt> CommonPortIdxStSeq;
+
+	//----------------------------------------------------------------------------------
+	// Interface Information Structure [���� IP �˻�]
+	//----------------------------------------------------------------------------------
+	struct InterfaceInfoSt
+	{
+		string				agwId;
+		string				Ifid;
+		IfTypeEnum			ifType;
+		IfSpeedEnum			ifSpeed;
+		OperStatusEnum		ifOperStatus;
+		AdminStatusEnum		ifAdminStatus;
+		string				ipAddress;
+		string				netMask;
+		string				physicalAddress;
+		long				aisStatus;
+		long				dscpValue;
+		LoopBackStatusEnum	loopBackStatus;
+		string				failReason;
+		string				alarmStatus;
+	};
+	typedef sequence<InterfaceInfoSt> InterfaceInfoStSeq;
+
+	//----------------------------------------------------------------------------------
+	// Port Information Structure
+	//----------------------------------------------------------------------------------
+
+	struct PortInfoSt
+	{
+		CommonPortIdxSt		varCommonPortIdxSt;
+		OperStatusEnum		operStatus;
+		EquipStatusEnum		equipStatus;
+		InterfaceInfoStSeq	    ifIdList;
+	};
+	typedef sequence<PortInfoSt> PortInfoStSeq;
+
+//OpCode : 0x7C002010
+	//----------------------------------------------------------------------------------
+	// all of the AGW Information
+	//----------------------------------------------------------------------------------
+	struct NodeInfoEventSt
+	{
+		string		emsId;
+		string		agwId;
+		long		keyValue;
+		string		userId;
+		string		passWord;
+		string  	fileLocation;
+		string		fileSize;
+		string		eventTime;
+	};
+//OpCode : 0x7C002011
+	//----------------------------------------------------------------------------------
+	// Object status Notification
+	//----------------------------------------------------------------------------------
+//OpCode : 0x7C002006
+	struct GetObjectSt
+	{
+		ObjectTypeEnum	objectType;
+		string			emsId;
+		string			systemId;
+		string			rackId;
+		string			shelfId;
+		string			slotId;
+		string			deviceId;
+		string			portId;
+		string			ifId;
+	};
+
+	struct StatusSt
+	{
+		UsageStateEnum				usageStatus;
+		OperStatusEnum				operStatus;
+		EquipStatusEnum				equipStatus;
+		AdminStatusEnum				adminStatus;
+		string						alarmStatus;
+		LoopBackStatusEnum			loopBackStatus;
+		ModeStatusEnum				protectionStatus;
+		string						swVersion;
+		string						hwVersion;
+		string						fwVersion;
+		string						failReason;
+	};
+//OpCode : 0x7C002004
+	//----------------------------------------------------------------------------------
+	// mmc
+	//----------------------------------------------------------------------------------
+	enum ResultTypeEnum
+	{
+		SYNC_RESULTTYPE,
+		ASYNC_RESULTTYPE
+	};
+
+	struct ExecuteMmcSt
+	{
+		string			agwId;
+		string          taskId;             
+		ResultTypeEnum	resultType;
+		string			command;
+	};
+
+	struct ResultSt
+	{
+		string          agwId;
+		string          taskId;              // ��ɾ� ID
+		stringStSeq		varstring;           // ���� �����
+		string			failReason;          // ���н� ����
+		string          time;                // �Ϸ� �ð�
+	};
+//OpCode : 0x7C002005
+	//----------------------------------------------------------------------------------
+	// loopback
+	//----------------------------------------------------------------------------------
+	struct LoopbackSt
+	{
+		string					emsId;
+		string					agwId;
+		string					rackId;
+		string					shelfId;
+		string					slotId;
+		string					portId;
+		LoopBackStatusEnum		loopbackStatus;
+	};
+//OpCode : 0x7C002007
+	struct RslpSt
+	{
+		string					agwId;
+		string					rackId;
+		string					shelfId;
+		string					slotId;
+		string					cardId;
+		string					portId;
+	};
+	
+	struct ResultStatusSt
+	{
+		string					rackId;
+		string					shelfId;
+		string					slotId;
+		string					cardId;
+		string					portId;
+		AdminStatusEnum			adminStatus;
+		string					alarmStatus;
+		LoopBackStatusEnum		lookbackStatus;
+		ModeStatusEnum			protectionStatus;
+		string					swVersion;
+		string					fwVersion;
+		string					failReason;
+	};
+	typedef sequence <ResultStatusSt> ResultStatusStSeq;
+
+	struct SendPkgSt
+	{
+		string				adaptorIp;
+		string				userId;
+		string				password;
+		string				swVersion;
+		string				pkgName;
+		long				pkgSize;
+		string				time;
+		string				pkgDir;
+	};
+
+	struct ResultPkgSt
+	{
+		string				agwId;
+		string				rackId;
+		string				shelfId;
+		string				slotId;
+		string				cardId;
+		CompleteTypeEnum	completeType;
+		string				bfVersion;
+		string				bfPkgName;
+		string				upVersion;
+		string				upPkgName;
+		string				failReason;
+	};
+	typedef sequence<ResultPkgSt> ResultPkgStSeq;
+
+//OpCode : 0x7C002009	
+	struct DistributePkgSt
+	{
+		ObjectTypeEnum		objectType;
+		string				agwId;
+		string				rackId;
+		string				shelfId;
+		string				slotId;
+		string				cardId;
+		string				pkgName;
+		string				swVersion;
+		long				pkgSize;
+		string				time;
+	};
+	typedef sequence<DistributePkgSt> DistributePkgStSeq;
+
+//OpCode : 0x7C00200A
+	struct OperationSt
+	{
+		string				agwId;
+		string				rackId;
+		string				shelfId;
+		string				slotId;
+		string				cardId;
+		OpEnum				op;
+	};
+
+//OpCode : 0x7C00200B
+	struct DiskInfoSt
+	{
+		string                                    diskPath; 		// ��Ƽ�� ���
+		long                                      diskUsage; 		// Disk��뷮(%)
+	};
+	typedef sequence< DiskInfoSt > DiskInfoStSeq;
+
+	struct ResourceInfoSt {
+		string                                   systemId; 		// �ý��� ID
+		long                                     cpuUsage; 		// cpu ��뷮(%)
+		long                                     memoryUsage; 	// �޸� ��뷮(%)
+		DiskInfoStSeq	 diskInfo;
+	};
+	typedef sequence< ResourceInfoSt  > ResourceInfoStSeq;
+
+//OpCode : 0x7C00F002	
+	struct StateChangeEventSt {
+		string   		emsId;
+		string   		agwId;
+		string			status;
+		string   		location;
+		string   		probableCause;
+		string   		addMessage;
+		string   		eventTime;
+	};
+
+//OpCode : 0x7C00F003	
+	struct StatEventSt {
+		string   		emsId;
+		string   		agwId;
+		string   		userId;
+		string   		password;
+		string			fileLocation;
+		string   		fileSize;
+		string   		eventTime;
+	};
+
+	//----------------------------------------------------------------------------------
+	// Interface IP(ssw-agw) 2007-06-26 �߰� �̵���
+	//----------------------------------------------------------------------------------
+	struct VopServiceIPSt
+	{
+		string		agwId;
+		string		sswIP;
+		string		agwIP;
+		wstring	ipPurpose; //2007-08-03 �߰� �̵���
+		string		vLanId; //2007-08-03 �߰� �̵���
+	};
+
+	//----------------------------------------------------------------------------------
+	// Change Colcode 2007-08-03 �߰� �̵���
+	//----------------------------------------------------------------------------------
+	struct ChangeAgwIdSt
+	{
+		string		emsId;
+		string		agwId;
+		string		managementIp;
+	};
+	
+ } ;
+    
+    //--------------------------------------------------------------------------------------
+    // Interface Definition for Local Exchange
+    //--------------------------------------------------------------------------------------
+    interface  xEXCH
+    {
+     //--------------------------------------------------------------------------------------
+     // Data Structure Definition for  xEXCH Interface
+     //--------------------------------------------------------------------------------------
+     
+    } ;
+    
+    //--------------------------------------------------------------------------------------
+    // Interface Definition for TIMS
+    //--------------------------------------------------------------------------------------
+    interface  xTIMS
+    {
+     //--------------------------------------------------------------------------------------
+     // Data Structure Definition for  xTIMS Interface
+     //--------------------------------------------------------------------------------------
+    
+    } ;
+    
+    //--------------------------------------------------------------------------------------
+    // Interface Definition for ANSWERS
+    //--------------------------------------------------------------------------------------
+    interface  xANSWERS
+    {
+     //--------------------------------------------------------------------------------------
+     // Data Structure Definition for  xANSWERS Interface
+     //--------------------------------------------------------------------------------------
+    
+    } ;
+    
+    //--------------------------------------------------------------------------------------
+    // Interface Definition for DSLAM
+    //--------------------------------------------------------------------------------------
+    interface  xDSLAM
+    {
+     //--------------------------------------------------------------------------------------
+     // Data Structure Definition for  xDSLAM Interface
+     //--------------------------------------------------------------------------------------
+    
+    } ;
+    
+    //--------------------------------------------------------------------------------------
+    // Interface Definition for ATM
+    //--------------------------------------------------------------------------------------
+    interface  xATM
+    {
+     //--------------------------------------------------------------------------------------
+     // Data Structure Definition for  xATM Interface
+     //--------------------------------------------------------------------------------------
+    
+    } ;
+
+
+
+
+
+} ;
+
