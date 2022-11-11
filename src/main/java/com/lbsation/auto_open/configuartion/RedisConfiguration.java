@@ -12,6 +12,7 @@ import java.util.Set;
 @Slf4j
 public class RedisConfiguration {
     private static String propFile = "/home/agwems/AGWEMS/yaml/application-autoOpen.yaml";
+//    private static String propFile = "C:\\emsProject\\corba_exam\\auto_open\\src\\main\\resources\\config/application-autoOpen.yaml";
 
 
     public static JedisCluster jedisCluster() {

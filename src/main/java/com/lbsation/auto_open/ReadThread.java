@@ -6,7 +6,6 @@ import KTCosNMS.xAGWPackage.stKtAgwAlarmExtEventHelper;
 import com.lbsation.auto_open.configuartion.RedisConfiguration;
 import com.lbsation.auto_open.enums.AgwTypeCode;
 import com.lbsation.auto_open.enums.MsgType;
-import com.lbsation.auto_open.model.AlarmInfoModel;
 import com.lbsation.auto_open.model.AlarmModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -43,12 +42,12 @@ public class ReadThread extends Thread {
                     if (!StringUtils.isEmpty(alarmStr)) {
                         log.info("alarmStr: {}", alarmStr);
                         // redis Data
-                        AlarmInfoModel alarmInfoModel = mapper.readValue(alarmStr, AlarmInfoModel.class);
-                        log.info("alarmInfoModel: {}", alarmInfoModel);
+                        AlarmModel alarmModel = mapper.readValue(alarmStr, AlarmModel.class);
+                        log.info("alarmModel: {}", alarmModel);
                         //
                         Any[] anyArray = new Any[1];
                         anyArray[0] = xKTSIOImpl._orb().create_any();
-                        stKtAgwAlarmExtEventHelper.insert(anyArray[0], setStKtAgwAlarmExtEvent(alarmInfoModel));
+                        stKtAgwAlarmExtEventHelper.insert(anyArray[0], setStKtAgwAlarmExtEvent(alarmModel));
 
 
                         //                    in_KtSioMsg.msgBody = AnyUtils.getRecvAsyncItAny(xKTSIOImpl._orb());
@@ -74,8 +73,8 @@ public class ReadThread extends Thread {
             }
         }
     }
-    public stKtAgwAlarmExtEvent setStKtAgwAlarmExtEvent(AlarmInfoModel alarmInfoModel){
-        AlarmModel alarmModel = alarmInfoModel.getAlarmModel().get(0);
+    public stKtAgwAlarmExtEvent setStKtAgwAlarmExtEvent(AlarmModel alarmModel){
+
         return new stKtAgwAlarmExtEvent(AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
                 alarmModel.getTid(), alarmModel.getAlarmCode(), setNativeDeviceName(alarmModel), 0xffffffff
                 , alarmModel.getAlarmData().getServerity()

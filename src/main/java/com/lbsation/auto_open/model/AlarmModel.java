@@ -2,11 +2,13 @@ package com.lbsation.auto_open.model;
 
 import com.lbsation.auto_open.enums.AlarmData;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.lbsation.auto_open.enums.OnOff;
 import lombok.Data;
 
 @Data
 public class AlarmModel {
-
+    @JsonProperty("ONOFF")
+    private OnOff onoff;
     @JsonProperty("ALARM_KEY")
     private String alarmKey;
     @JsonProperty("TID")

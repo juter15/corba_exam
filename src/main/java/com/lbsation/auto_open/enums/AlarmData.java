@@ -4,8 +4,8 @@ public enum AlarmData {
     CRI("CRITICAL", (short)2),
     MAJ("MAJOR", (short)3),
     MIN("MINOR", (short)4),
-    DIS("DISCONN", (short) 99);
-   // CONN("", (short)99);
+    DIS("DISCONN", (short) 99),
+    CONN("CONN", (short)99);
     private String alarmGrade;
     private short serverity;
 
