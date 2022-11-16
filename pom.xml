@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.lbsation.auto_open</groupId>
     <artifactId>auto_open</artifactId>
-    <version>221111</version>
+    <version>221116</version>
     <name>auto_open</name>
     <description>auto_open</description>
     <properties>

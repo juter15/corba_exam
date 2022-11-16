@@ -21,15 +21,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class CorbaDemoApplication {
     //    private static ApplicationContext applicationContext;
-    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBInitialHost", "localhost"};
+        public static final String[] ORB_OPTIONS = new String[]{"-port ", "36267", "-ORBInitialPort", "36268", "-ORBServerHost", "61.98.79.244"};
+//        public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36268","-ORBServerPort", "36267", "-ORBInitialHost", "61.98.79.244"};
+//    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36268", "-ORBServerPort", "36267", "-ORBInitialHost", "ation.com"};
 
     public static void main(String[] args) throws InterruptedException, IOException {
 
+        System.out.println("### ation.com config3 ###");
 
         List<String> orbdStartupCommands = new ArrayList<>();
         orbdStartupCommands.add("orbd");
@@ -37,7 +41,7 @@ public class CorbaDemoApplication {
 
         Process orbdProcess = new ProcessBuilder(orbdStartupCommands).start();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("xKTSIOService Exiting ...");
+            System.out.println("NMS-SERVER Exiting ...");
             orbdProcess.destroy();
         }));
 
@@ -50,11 +54,16 @@ public class CorbaDemoApplication {
         }
         SpringApplication.run(CorbaDemoApplication.class, args);
 
-
     }
 
     private static void bindService(String[] options) throws InvalidName, AdapterInactive, ServantNotActive, WrongPolicy, org.omg.CosNaming.NamingContextPackage.InvalidName, NotFound, CannotProceed {
-        ORB orb = ORB.init(options, null);
+        Properties prop = new Properties();
+        // 서버 실행 리슨포트 10000으로 설정
+        prop.put("com.sun.CORBA.ORBServerPort", "10000");
+        prop.put("com.sun.CORBA.ORBServerHost", "61.98.79.244");
+//        prop.put("com.sun.CORBA.activation.Port", "36267");
+//        prop.put("com.coremedia.corba.server.port", "36267");
+        ORB orb = ORB.init(options, prop);
 
         POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
         rootPOA.the_POAManager().activate();
@@ -68,10 +77,11 @@ public class CorbaDemoApplication {
                 orb.resolve_initial_references("NameService");
         NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
 
-        NameComponent path[] = ncRef.to_name("xKTSIOServer");
+//        NameComponent path[] = ncRef.to_name("corbaname:iiop:1.2@61.98.79.244:1049#BcN-NMS");
+        NameComponent path[] = ncRef.to_name("BcN-NMS");
         ncRef.rebind(path, href);
 
-        System.out.println("xKTSIOService ready started and waiting request ...");
+        System.out.println("NMS-SERVER ready started and waiting request ...");
 
         server.startReadThread();
 

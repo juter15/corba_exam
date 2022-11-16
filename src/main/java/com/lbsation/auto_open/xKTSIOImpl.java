@@ -28,6 +28,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
 //        clients.add(lt);
 //    }
     public void startReadThread() {
+
         rt.start();
     }
 

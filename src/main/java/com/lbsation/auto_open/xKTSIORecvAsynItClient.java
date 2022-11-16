@@ -17,19 +17,18 @@ import java.util.Properties;
 
 @Slf4j
 public class xKTSIORecvAsynItClient {
-    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBInitialHost", "localhost"};
+    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36268", "-ORBInitialHost", "61.98.79.244"};
 
 
     public static void main(String args[]) throws IOException, InterruptedException, InvalidName, org.omg.CosNaming.NamingContextPackage.InvalidName, CannotProceed, NotFound {
 
         try {
-
+            System.out.println("### xKTSIORecvAsynItClient START ###");
             //initialize orb
             Properties props = System.getProperties();
-            props.put("org.omg.CORBA.ORBInitialPort", "1050");
-            //Replace MyHost with the name of the host on which you are running the server
-            props.put("org.omg.CORBA.ORBInitialHost", "localhost");
-            ORB orb = ORB.init(args, props);
+            props.put("com.sun.CORBA.ORBServerPort", "36268");
+            props.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
+            ORB orb = ORB.init(ORB_OPTIONS, props);
             System.out.println("Initialized ORB");
 
             //Instantiate Servant and create reference
@@ -44,7 +43,8 @@ public class xKTSIORecvAsynItClient {
 
             //Resolve MessageServer
             xKTSIO xKTSIOServer = xKTSIOHelper.narrow(
-                    orb.string_to_object("corbaname:iiop:1.2@localhost:1050#xKTSIOServer"));
+                    orb.string_to_object("corbaname:iiop:1.2@61.98.79.244:36268#BcN-NMS"));
+//                    orb.string_to_object("corbaname:iiop:1.2@localhost:1050#BcN-NMS"));
 //            xKTSIOServer.echoString("@@@@@@@@@@");
             //Register listener reference (callback object) with MessageServer
 
@@ -52,7 +52,7 @@ public class xKTSIORecvAsynItClient {
 
             xKTSIOServer.recvAsyncIt(setKTSIOMsg(orb), ref);
 
-            System.out.println("Listener registered with xKTSIOServer");
+            System.out.println("Listener registered with NMS-SERVER");
 
             //Activate rootpoa
             rootPOA.the_POAManager().activate();
