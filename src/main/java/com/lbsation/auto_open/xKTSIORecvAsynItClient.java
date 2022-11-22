@@ -7,17 +7,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.omg.CORBA.*;
 import org.omg.CORBA.ORBPackage.InvalidName;
+import org.omg.CORBA.Object;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContextExt;
+import org.omg.CosNaming.NamingContextExtHelper;
 import org.omg.CosNaming.NamingContextPackage.CannotProceed;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingEnumeration;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 @Slf4j
 public class xKTSIORecvAsynItClient {
     public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36268", "-ORBInitialHost", "61.98.79.244"};
+//    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
 
 
     public static void main(String args[]) throws IOException, InterruptedException, InvalidName, org.omg.CosNaming.NamingContextPackage.InvalidName, CannotProceed, NotFound {
@@ -39,18 +49,34 @@ public class xKTSIORecvAsynItClient {
             xKTSIO ref = xKTSIOHelper.narrow(
                     rootPOA.servant_to_reference(listener));
 
-//            EquipInfo equipInfo = (EquipInfo) PortableRemoteObject.narrow(ref, EquipInfo.class);// line 127
+            String corbaNameStr = "corbaname::61.98.79.244:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
 
-            //Resolve MessageServer
-            xKTSIO xKTSIOServer = xKTSIOHelper.narrow(
-                    orb.string_to_object("corbaname:iiop:1.2@61.98.79.244:36268#BcN-NMS"));
-//                    orb.string_to_object("corbaname:iiop:1.2@localhost:1050#BcN-NMS"));
-//            xKTSIOServer.echoString("@@@@@@@@@@");
-            //Register listener reference (callback object) with MessageServer
+            log.info("corbaNameStr: {}", corbaNameStr);
 
-//            KTSIOMsg ktsioMsg = setKTSIOMsg(orb);
 
+            Object obj3 = orb.string_to_object(corbaNameStr);
+            String iorStr3 = orb.object_to_string(obj3);
+            log.info("iorStr3: {}", iorStr3);
+
+            xKTSIO xKTSIOServer = xKTSIOHelper.narrow(orb.string_to_object(iorStr3));
             xKTSIOServer.recvAsyncIt(setKTSIOMsg(orb), ref);
+
+//        //---------------------
+//        Properties env = new Properties();
+//        env.put("java.naming.factory.initial","com.sun.jndi.cosnaming.CNCtxFactory");
+//        env.put("java.naming.provider.url", "iiop://" + "localhost" +":"+"1049");
+//        Context ic = new InitialContext(env);
+//
+//
+//        NameComponent[] nameComp = new NameComponent[1];
+//
+//        NamingEnumeration nen = ic.list("/");
+//        List<String> nameList = new ArrayList<>();
+//        while (nen.hasMore()) {
+//            System.out.println("@@@ "+nen.next());
+//
+//        }
+//        //---------------------
 
             System.out.println("Listener registered with NMS-SERVER");
 
@@ -84,7 +110,6 @@ public class xKTSIORecvAsynItClient {
 
         return ktsioMsg;
     }
-
 
 
 }

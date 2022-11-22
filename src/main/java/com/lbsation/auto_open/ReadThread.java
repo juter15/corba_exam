@@ -11,11 +11,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.omg.CORBA.Any;
+import org.springframework.stereotype.Service;
 import redis.clients.jedis.*;
 
 import java.util.Objects;
 
 @Slf4j
+@Service
 public class ReadThread extends Thread {
 
 
@@ -57,7 +59,7 @@ public class ReadThread extends Thread {
                         KTSIOMsg ktsioMsg = setKTKtsioMsg(anyArray);
                         if (xKTSIOImpl.xKTSIOs != null) {
                             xKTSIOImpl.xKTSIOs.recvAsyncIt(ktsioMsg, xKTSIOImpl.xKTSIOs);
-                            System.out.println("### Server RecvAsyncIt CALL ### : " + ktsioMsg);
+                            log.info("### Server RecvAsyncIt CALL ### : {}", ktsioMsg);
                         } else {
 
                             System.out.println("### xKTSIOs NULL ### : ");

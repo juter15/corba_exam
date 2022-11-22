@@ -55,9 +55,9 @@ public class xKTSIOImpl extends xKTSIOPOA {
         xKTSIOs = in_replyKTSIO;
 
 
-        System.out.println("### Receive AsnycIt in_KtSioMsg: " + in_KtSioMsg);
+        System.out.println("$$$ Receive AsnycIt in_KtSioMsg: " + in_KtSioMsg);
         Any[] anyArray = in_KtSioMsg.msgBody;
-        System.out.println("### Receive AsnycIt stKtAgwAlarmExtEventH: " + stKtAgwAlarmExtEventHelper.extract(anyArray[0]));
+        System.out.println("$$$ Receive AsnycIt stKtAgwAlarmExtEventH: " + stKtAgwAlarmExtEventHelper.extract(anyArray[0]));
 
     }
 

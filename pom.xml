@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.lbsation.auto_open</groupId>
     <artifactId>auto_open</artifactId>
-    <version>221116</version>
+    <version>221122</version>
     <name>auto_open</name>
     <description>auto_open</description>
     <properties>
@@ -84,6 +84,14 @@
             <artifactId>openjdk-orb</artifactId>
             <version>8.1.9.Final</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jacorb/jacorb -->
+        <dependency>
+            <groupId>org.jacorb</groupId>
+            <artifactId>jacorb</artifactId>
+            <version>3.9</version>
+        </dependency>
+
+
         <!-- Thanks for using https://jar-download.com -->
 
 <!--        &lt;!&ndash; https://mvnrepository.com/artifact/com.sun.corba/glassfish-corba-omgapi &ndash;&gt;-->
