@@ -1,6 +1,7 @@
 package com.lbsation.auto_open;
 
 import KTCosNMS.*;
+import KTCosNMS.xAGWPackage.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sun.corba.se.impl.corba.ContextImpl;
 import com.sun.corba.se.impl.ior.iiop.IIOPAddressImpl;
@@ -44,10 +45,12 @@ import java.net.URL;
 import java.util.*;
 
 import static org.jacorb.orb.util.PrintIOR.printIOR;
+
 @Slf4j
 public class xKTSIORecvItClient {
-    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBServerHost", "61.98.79.244", "-ORBInitialHost", "61.98.79.244"};
-//    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBInitialHost", "localhost"};
+//    public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "61.98.79.244"};
+    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBInitialHost", "localhost"};
+
 
     public static void main(String args[]) throws Exception {
 
@@ -55,8 +58,8 @@ public class xKTSIORecvItClient {
 
         //initialize orb
         Properties props = System.getProperties();
-//        props.put("com.sun.CORBA.ORBServerPort", "36268");
-//        props.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
+        props.put("com.sun.CORBA.ORBServerPort", "36268");
+        props.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
 
         ORB orb = (ORB) ORB.init(ORB_OPTIONS, props);
 //        ORB orb = (ORB) ORB.init();
@@ -68,13 +71,11 @@ public class xKTSIORecvItClient {
                 orb.resolve_initial_references("RootPOA"));
         xKTSIOImpl listener = new xKTSIOImpl();
         rootPOA.activate_object(listener);
-        xKTSIO ref = xKTSIOHelper.narrow(
-                rootPOA.servant_to_reference(listener));
+        org.omg.CORBA.Object ref = rootPOA.servant_to_reference(listener);
 
-        KTSIOMsg ktsioMsg = setKTSIOMsg(orb);
-        KTSIOMsgHolder ktsioMsgHolder = new KTSIOMsgHolder(ktsioMsg);
+        xKTSIO href = xKTSIOHelper.narrow(ref);
 
-//        ref.recvIt(ktsioMsg, ktsioMsgHolder);
+
 
         org.omg.CORBA.Object objRef =
                 orb.resolve_initial_references("NameService");
@@ -84,12 +85,10 @@ public class xKTSIORecvItClient {
         System.out.print("Got Ref.\nGetting naming context root ... ");
 
 
-
-//        String corbaNameStr = "corbaname::localhost:1050#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
+//        String corbaNameStr = "corbaname::localhost:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
         String corbaNameStr = "corbaname::61.98.79.244:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
 
         log.info("corbaNameStr: {}", corbaNameStr);
-
 
 
         Object obj3 = orb.string_to_object(corbaNameStr);
@@ -97,9 +96,32 @@ public class xKTSIORecvItClient {
         log.info("iorStr3: {}", iorStr3);
 
         xKTSIO xKTSIOServer = xKTSIOHelper.narrow(orb.string_to_object(iorStr3));
-        xKTSIO xKTSIOServer2 = xKTSIOHelper.narrow(orb.string_to_object("corbaname::61.98.79.244:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD"));
-        xKTSIOServer.recvIt(ktsioMsg, ktsioMsgHolder);
+//        xKTSIO xKTSIOServer2 = xKTSIOHelper.narrow(orb.string_to_object("corbaname::61.98.79.244:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD"));
+        org.omg.CORBA.Any[] anyArray = new org.omg.CORBA.Any[1];
+        Any any = orb.create_any();
+        anyArray[0] = any;
 
+        KTSIOMsg ktsioMsgSession = setKTSIOMsg(orb, 1342177280);
+        stKtAgwSessionInfoHelper.insert(anyArray[0], setStKtAgwSessionInfo(orb.object_to_string(href)));
+        ktsioMsgSession.msgBody = anyArray;
+        KTSIOMsgHolder ktsioMsgSessionHolder = new KTSIOMsgHolder(ktsioMsgSession);
+        xKTSIOServer.recvIt(ktsioMsgSession, ktsioMsgSessionHolder);
+        log.info("### CALL SESSION ### ");
+
+        KTSIOMsg ktsioMsgEm = setKTSIOMsg(orb, 2080382976);
+        EmsInfoStHelper.insert(anyArray[0], setEmsInfoSt());
+        ktsioMsgEm.msgBody = anyArray;
+        KTSIOMsgHolder ktsioMsgEmHolder = new KTSIOMsgHolder(ktsioMsgEm);
+        xKTSIOServer.recvIt(ktsioMsgEm, ktsioMsgEmHolder);
+
+        log.info("### CALL EMSINFO ### {}", ktsioMsgEmHolder);
+
+        KTSIOMsg ktsioMsgEq = setKTSIOMsg(orb, 2097152001);
+        EquipInfoHelper.insert(anyArray[0], setEquipInfo());
+        ktsioMsgEq.msgBody = anyArray;
+        KTSIOMsgHolder ktsioMsgEqHolder = new KTSIOMsgHolder(ktsioMsgEq);
+        xKTSIOServer.recvIt(ktsioMsgEq, ktsioMsgEqHolder);
+        log.info("### CALL EQUIPINFO ### ");
 //        //---------------------
 //        Properties env = new Properties();
 //        env.put("java.naming.factory.initial","com.sun.jndi.cosnaming.CNCtxFactory");
@@ -122,18 +144,12 @@ public class xKTSIORecvItClient {
         orb.run();
     }
 
-    public static KTSIOMsg setKTSIOMsg(ORB orb) throws JsonProcessingException {
-
-        org.omg.CORBA.Any[] anyArray = new org.omg.CORBA.Any[1];
-        Any any = orb.create_any();
-
-        anyArray[0] = any;
-        EquipInfoHelper.insert(anyArray[0], setEquipInfo());
+    public static KTSIOMsg setKTSIOMsg(ORB orb, int opCode) throws JsonProcessingException {
 
 
         KTSIOMsg ktsioMsg = new KTSIOMsg("sourceSys", (short) 1, (short) 1,
-                (short) 1, 1, 1, (short) 1, (short) 1, (short) 1, (short) 1,
-                (short) 1, (short) 1, (short) 1, (short) 1, (short) 1, anyArray);
+                (short) 1, opCode, 1, (short) 1, (short) 1, (short) 1, (short) 1,
+                (short) 1, (short) 1, (short) 1, (short) 1, (short) 1, new Any[1]);
 
         return ktsioMsg;
     }
@@ -150,4 +166,22 @@ public class xKTSIORecvItClient {
                 "oltLinkIp", 111, "ipsecgwIp", "tCom", "mac", "mgid");
     }
 
+    public static EmsInfoSt setEmsInfoSt() {
+        return  new EmsInfoSt("EMSID", "emsName", "managementAddress",
+                "opTime", "swVersion", "update", setUsageStateEnum(), setCommonOptSt());
+
+    }
+
+    public static UsageStateEnum setUsageStateEnum(){
+        return UsageStateEnum.ACTIVE_USAGESTATE;
+    }
+
+    public static CommonOptSt setCommonOptSt(){
+        return new CommonOptSt("vendorName", "manufactureDate", "serialNumber", "description");
+    }
+
+    public static stKtAgwSessionInfo setStKtAgwSessionInfo(String ior){
+        log.info("retrun : {}", ior);
+        return new stKtAgwSessionInfo("testClient", ior);
+    }
 }

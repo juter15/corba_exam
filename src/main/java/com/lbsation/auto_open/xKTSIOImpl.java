@@ -3,8 +3,15 @@ package com.lbsation.auto_open;
 import KTCosNMS.*;
 import KTCosNMS.xAGWPackage.*;
 import com.lbsation.auto_open.configuartion.DbConfiguration;
+import com.lbsation.auto_open.enums.RecvItType;
 import lombok.extern.slf4j.Slf4j;
+import org.jacorb.orb.ORBSingleton;
 import org.omg.CORBA.Any;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.ORBPackage.InvalidName;
+import org.omg.PortableServer.POA;
+import org.omg.PortableServer.POAHelper;
+import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
@@ -15,45 +22,83 @@ import java.util.Vector;
 @Slf4j
 @Service
 public class xKTSIOImpl extends xKTSIOPOA {
+    public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "61.98.79.244"};
+//    public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "localhost"};
     private Vector clients = new Vector();
+    public static String clientIOR = null;
     private Connection conn = null;
     public xKTSIO xKTSIOs = null;
-    private ReadThread rt = null;
+    private static ReadThread rt = null;
 
     public xKTSIOImpl() {
         rt = new ReadThread(this);
     }
 
-
-    //    public void register(KTSIOMsg lt) {
-//        clients.add(lt);
-//    }
-    public void startReadThread() {
+    public String getClientIOR(){
+        return clientIOR;
+    }
+    public static void startReadThread() {
 
         rt.start();
     }
 
     @Override
-    public void recvIt(KTSIOMsg in_KtSioMsg, KTSIOMsgHolder out_KtSioMsg) {
+    public void recvIt(KTSIOMsg in_KtSioMsg, KTSIOMsgHolder out_KtSioMsg){
+        log.info("hax: {}", String.format("%x", in_KtSioMsg.opCode)); // -> 7D000001
+
+
         log.info("xKTSIO: {}", xKTSIOs);
-        if (conn == null) {
-            conn = DbConfiguration.dbConnect();
-        }
+
 //        in_KtSioMsg.msgBody.
         log.info("in_KtSioMsg: {}", in_KtSioMsg);
         log.info("out_KtSioMsg: {}", out_KtSioMsg);
 
-        // DB SAVE
-        EquipInfo equipInfo = EquipInfoHelper.extract(in_KtSioMsg.msgBody[0]);
-        log.info("equipInfo: {}", equipInfo);
-        log.info("conn: {}", conn);
-        AutoOpenHistoryInsert(equipInfo);
+        if(Integer.parseInt(RecvItType.SESSIONINFO.getTypeHax(), 16) == in_KtSioMsg.opCode){
+            String ior = stKtAgwSessionInfoHelper.extract(in_KtSioMsg.msgBody[0]).eocmsMdIOR;
+            log.info(ior);
+            clientIOR = ior;
+
+        }
+        else if(Integer.parseInt(RecvItType.EQUIPIFO.getTypeHax(), 16) == in_KtSioMsg.opCode){
+            // DB SAVE
+
+            if (conn == null) {
+                conn = DbConfiguration.dbConnect();
+            }
+
+            EquipInfo equipInfo = EquipInfoHelper.extract(in_KtSioMsg.msgBody[0]);
+            log.info("equipInfo: {}", equipInfo);
+            log.info("conn: {}", conn);
+            AutoOpenHistoryInsert(equipInfo);
+        }
+        else if(Integer.parseInt(RecvItType.EMSINFO.getTypeHax(), 16) == in_KtSioMsg.opCode){
+            EmsInfoSt emsInfoStIn = EmsInfoStHelper.extract(in_KtSioMsg.msgBody[0]);
+            log.info("### INPUT emsInfoSt: {}", emsInfoStIn);
+            //
+            if(out_KtSioMsg.value.msgBody != null){
+//                EmsInfoSt emsInfoStOut = EmsInfoStHelper.extract(in_KtSioMsg.msgBody[0]);
+//                log.info("### OUT emsInfoSt: {}", emsInfoStOut);
+                out_KtSioMsg.value.opCode = 1;
+
+                log.info("newKtSioMsg: {}", out_KtSioMsg);
+
+
+
+
+//                recvIt(null, out_KtSioMsg);
+//                recvIt(in_KtSioMsg, out_KtSioMsg);
+            }
+        }
+        else{
+            log.info("### DEF OPCODE : {}", in_KtSioMsg.opCode);
+        }
     }
 
     //USED
     @Override
     public void recvAsyncIt(KTSIOMsg in_KtSioMsg, xKTSIO in_replyKTSIO) {
         xKTSIOs = in_replyKTSIO;
+
 
 
         System.out.println("$$$ Receive AsnycIt in_KtSioMsg: " + in_KtSioMsg);

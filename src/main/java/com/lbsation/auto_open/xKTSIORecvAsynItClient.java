@@ -59,7 +59,7 @@ public class xKTSIORecvAsynItClient {
             log.info("iorStr3: {}", iorStr3);
 
             xKTSIO xKTSIOServer = xKTSIOHelper.narrow(orb.string_to_object(iorStr3));
-            xKTSIOServer.recvAsyncIt(setKTSIOMsg(orb), ref);
+//            xKTSIOServer.recvAsyncIt(setKTSIOMsg(orb), ref);
 
 //        //---------------------
 //        Properties env = new Properties();

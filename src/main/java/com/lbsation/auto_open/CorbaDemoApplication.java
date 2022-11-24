@@ -43,12 +43,15 @@ import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class CorbaDemoApplication {
-    //    private static ApplicationContext applicationContext;
-        public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "61.98.79.244"};
+    public static ORB orb = null;
 
-//        public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBServerHost", "61.98.79.244"};
-//    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
 
+    public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "61.98.79.244"};
+
+    //    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
+    public static ORB getORB() {
+        return orb;
+    }
 
     public static void main(String[] args) throws InterruptedException, IOException {
 
@@ -81,9 +84,9 @@ public class CorbaDemoApplication {
         // 서버 실행 리슨포트 10000으로 설정
         prop.put("com.sun.CORBA.ORBServerPort", "36268");
         prop.put("com.sun.CORBA.ORBServerHost", "61.98.79.244");
+//
 
-
-        ORB orb = (ORB) ORB.init(options, prop);
+        orb = (ORB) ORB.init(options, prop);
 
         POA rootPOA = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
         rootPOA.the_POAManager().activate();
@@ -157,9 +160,9 @@ public class CorbaDemoApplication {
         }
 
 
-        for (int i = 1; i < name.length-1; i++){
+        for (int i = 1; i < name.length - 1; i++) {
 //            System.out.println("i "+name[i]);
-            NameComponent[] tmpName = new NameComponent[1+i];
+            NameComponent[] tmpName = new NameComponent[1 + i];
             for (int j = 0; j <= i; j++) {
                 tmpName[j] = name[j];
             }
