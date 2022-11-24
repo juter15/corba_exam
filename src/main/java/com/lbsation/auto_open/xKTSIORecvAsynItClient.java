@@ -26,7 +26,7 @@ import java.util.Properties;
 
 @Slf4j
 public class xKTSIORecvAsynItClient {
-    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36268", "-ORBInitialHost", "61.98.79.244"};
+    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBInitialHost", "61.98.79.244", "-ORBInitialHost", "61.98.79.244"};
 //    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
 
 

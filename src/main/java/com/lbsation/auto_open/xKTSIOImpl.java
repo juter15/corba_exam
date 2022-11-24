@@ -8,6 +8,7 @@ import org.omg.CORBA.Any;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
+import java.util.Date;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -157,12 +158,15 @@ public class xKTSIOImpl extends xKTSIOPOA {
                 + createInsertQuery(equipInfo.trapCommunity)
                 + createInsertQuery(equipInfo.mac)
                 + createInsertQuery(equipInfo.mgid)
+//                + new Date() + ","
                 + null + ")";
 //                + createInsertQuery(equipInfo.id).replace(",", "") + ")"; // Update User Id
         try {
             PreparedStatement pstmt = conn.prepareStatement(sql);
+
             pstmt.executeUpdate();
             conn.commit();
+//            conn.close();
         } catch (Exception e) {
             log.error("error: {}", e.getMessage());
         }

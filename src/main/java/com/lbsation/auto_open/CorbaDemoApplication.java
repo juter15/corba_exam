@@ -44,7 +44,9 @@ import java.util.concurrent.TimeUnit;
 @SpringBootApplication
 public class CorbaDemoApplication {
     //    private static ApplicationContext applicationContext;
-        public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBInitialPort", "36268", "-ORBServerHost", "61.98.79.244"};
+        public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "61.98.79.244"};
+
+//        public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBServerHost", "61.98.79.244"};
 //    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
 
 
@@ -53,14 +55,15 @@ public class CorbaDemoApplication {
         System.out.println("### ation.com config3 ###");
 
         List<String> orbdStartupCommands = new ArrayList<>();
-        orbdStartupCommands.add("orbd");
-        orbdStartupCommands.addAll(Arrays.asList(ORB_OPTIONS));
 
-        Process orbdProcess = new ProcessBuilder(orbdStartupCommands).start();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("NMS-SERVER Exiting ...");
-            orbdProcess.destroy();
-        }));
+//        orbdStartupCommands.add("orbd");
+//        orbdStartupCommands.addAll(Arrays.asList(ORB_OPTIONS));
+//
+//        Process orbdProcess = new ProcessBuilder(orbdStartupCommands).start();
+//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+//            System.out.println("NMS-SERVER Exiting ...");
+//            orbdProcess.destroy();
+//        }));
 
         TimeUnit.SECONDS.sleep(1);
         try {
@@ -76,7 +79,7 @@ public class CorbaDemoApplication {
     private static void bindService(String[] options) throws UserException, FileNotFoundException, UnknownHostException {
         Properties prop = new Properties();
         // 서버 실행 리슨포트 10000으로 설정
-        prop.put("com.sun.CORBA.ORBServerPort", "10000");
+        prop.put("com.sun.CORBA.ORBServerPort", "36268");
         prop.put("com.sun.CORBA.ORBServerHost", "61.98.79.244");
 
 
@@ -116,6 +119,7 @@ public class CorbaDemoApplication {
             createContextPath(ncRef, name);
             ncRef.rebind(name, href);
         }
+//        ((com.sun.corba.se.spi.orb.ORB) orb).register_initial_reference("KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD", href);
         System.out.println("New account created and registered.  URLs are: ");
         System.out.println("\nIOR");
         System.out.println("\t" + orb.object_to_string(href));

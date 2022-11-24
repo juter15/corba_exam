@@ -46,8 +46,8 @@ import java.util.*;
 import static org.jacorb.orb.util.PrintIOR.printIOR;
 @Slf4j
 public class xKTSIORecvItClient {
-//    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36268", "-ORBInitialHost", "61.98.79.244"};
-    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
+    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBServerHost", "61.98.79.244", "-ORBInitialHost", "61.98.79.244"};
+//    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "1050", "-ORBInitialHost", "localhost"};
 
     public static void main(String args[]) throws Exception {
 
@@ -59,6 +59,7 @@ public class xKTSIORecvItClient {
 //        props.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
 
         ORB orb = (ORB) ORB.init(ORB_OPTIONS, props);
+//        ORB orb = (ORB) ORB.init();
 //            ORB orb = ORB.init(ORB_OPTIONS, props);
         System.out.println("Initialized ORB");
 
@@ -70,15 +71,20 @@ public class xKTSIORecvItClient {
         xKTSIO ref = xKTSIOHelper.narrow(
                 rootPOA.servant_to_reference(listener));
 
+        KTSIOMsg ktsioMsg = setKTSIOMsg(orb);
+        KTSIOMsgHolder ktsioMsgHolder = new KTSIOMsgHolder(ktsioMsg);
+
+//        ref.recvIt(ktsioMsg, ktsioMsgHolder);
+
         org.omg.CORBA.Object objRef =
                 orb.resolve_initial_references("NameService");
         NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
 
+
         System.out.print("Got Ref.\nGetting naming context root ... ");
 
 
-        KTSIOMsg ktsioMsg = setKTSIOMsg(orb);
-        KTSIOMsgHolder ktsioMsgHolder = new KTSIOMsgHolder(ktsioMsg);
+
 //        String corbaNameStr = "corbaname::localhost:1050#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
         String corbaNameStr = "corbaname::61.98.79.244:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
 
@@ -91,6 +97,7 @@ public class xKTSIORecvItClient {
         log.info("iorStr3: {}", iorStr3);
 
         xKTSIO xKTSIOServer = xKTSIOHelper.narrow(orb.string_to_object(iorStr3));
+        xKTSIO xKTSIOServer2 = xKTSIOHelper.narrow(orb.string_to_object("corbaname::61.98.79.244:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD"));
         xKTSIOServer.recvIt(ktsioMsg, ktsioMsgHolder);
 
 //        //---------------------
