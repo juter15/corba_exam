@@ -22,13 +22,11 @@ import java.util.Vector;
 @Slf4j
 @Service
 public class xKTSIOImpl extends xKTSIOPOA {
-    public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "61.98.79.244"};
-//    public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "localhost"};
     private Vector clients = new Vector();
     public static String clientIOR = null;
     private Connection conn = null;
     public xKTSIO xKTSIOs = null;
-    private static ReadThread rt = null;
+    private ReadThread rt = null;
 
     public xKTSIOImpl() {
         rt = new ReadThread(this);
@@ -37,10 +35,10 @@ public class xKTSIOImpl extends xKTSIOPOA {
     public String getClientIOR(){
         return clientIOR;
     }
-    public static void startReadThread() {
-
-        rt.start();
-    }
+//    public static void startReadThread() {
+//
+//        rt.start();
+//    }
 
     @Override
     public void recvIt(KTSIOMsg in_KtSioMsg, KTSIOMsgHolder out_KtSioMsg){
@@ -58,6 +56,23 @@ public class xKTSIOImpl extends xKTSIOPOA {
             log.info(ior);
             clientIOR = ior;
 
+            try{
+                if(rt.getState() ==  Thread.State.RUNNABLE){
+                    rt.interrupt();
+                    System.out.println("### Thread END###");
+                    if(rt.isInterrupted()){
+                        rt = new ReadThread(this);
+                        rt.run();
+                        System.out.println("### Thread ReStart ###");
+                    }
+                }
+                else{
+                    rt.run();
+                }
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
         }
         else if(Integer.parseInt(RecvItType.EQUIPIFO.getTypeHax(), 16) == in_KtSioMsg.opCode){
             // DB SAVE
@@ -101,9 +116,11 @@ public class xKTSIOImpl extends xKTSIOPOA {
 
 
 
+
         System.out.println("$$$ Receive AsnycIt in_KtSioMsg: " + in_KtSioMsg);
         Any[] anyArray = in_KtSioMsg.msgBody;
         System.out.println("$$$ Receive AsnycIt stKtAgwAlarmExtEventH: " + stKtAgwAlarmExtEventHelper.extract(anyArray[0]));
+        System.out.println("$$$ ---------------------------------------: ");
 
     }
 

@@ -30,7 +30,6 @@ public class ReadThread extends Thread {
 
 
     xKTSIOImpl xKTSIOImpl = null;
-    String clientIOR = null;
 
     public ReadThread(xKTSIOImpl xKTSIOImpl) {
         this.xKTSIOImpl = xKTSIOImpl;
@@ -41,7 +40,7 @@ public class ReadThread extends Thread {
     public void run() {
 
         xKTSIO xKTSIOClient = null;
-
+        String clientIOR = null;
         ObjectMapper mapper = new ObjectMapper();
 
         try (JedisCluster clusterPool = RedisConfiguration.jedisCluster()) {
@@ -52,19 +51,19 @@ public class ReadThread extends Thread {
                     if (xKTSIOClient == null) {
                         if (clientIOR == null) {
                             clientIOR = xKTSIOImpl.getClientIOR();
-                            if (clientIOR == null) {
-                                Thread.sleep(1000);
-                                continue;
-                            }
+//                            if (clientIOR == null) {
+//                                Thread.sleep(1000);
+//                                continue;
+//                            }
                             ORB orb = CorbaDemoApplication.getORB();
                             xKTSIOClient = xKTSIOHelper.narrow(orb.string_to_object(clientIOR));
+                            System.out.println("### NEW CONNECT ### " + clientIOR);
                         }
                     }
-                    System.out.println("### <START> ###");
 //                    Thread.sleep(1000);
 //                    clusterPool.rpush("NMS_ALARM_INFO", "{\"ONOFF\":\"ON\",\"TYPE\":\"ONE\",\"ALARM\":[{\"ALARM_KEY\":\"7159490584401412116\",\"TID\":\"GBGMS4764\",\"MASTER_TID\":\" \",\"AGW_NAME\":\"4형_1_MGID1838_192.168.0.103\",\"AGW_TYPE\":\"4\",\"MIH_IP\":\"192.168.0.103\",\"AGW_ID\":\"8c3f9000f46d4c2f9c11c0d546bbe4dd\",\"GROUP_ID_1\":\"0f685b98926949108f0be865b58f60f6\",\"GROUP_ID_2\":\"0438290e9edb47b2a2277f8c531c3449\",\"GROUP_ID_3\":\"196bf3e42d6e46ca855611ccb9e6569e\",\"GROUP_ID_4\":\"15fa070e32544f6b90605d226bdb3cbf\",\"GROUP_NAME_1\":\"대구본부\",\"GROUP_NAME_2\":\"경북유선센터\",\"GROUP_NAME_3\":\"구미\",\"GROUP_NAME_4\":\"4공단BBS\",\"ALARM_CODE\":\"CONN\",\"ALARM_GRADE\":\"DIS\",\"CREATE_TIME\":\"2022-10-28 18:20:01\",\"INFORMATION\":\"TDXAGW DISCONNECTED\"}]}\n");
 //                    log.info("clusterPool: {}", clusterPool.getClusterNodes());
-
+                    System.out.println("### START ### ");
                     String alarmStr = Objects.requireNonNull(clusterPool).blpop(60 * 60 * 24 * 30, "NMS_ALARM_INFO").get(1);
                     if (!StringUtils.isEmpty(alarmStr)) {
                         log.info("alarmStr: {}", alarmStr);
@@ -72,24 +71,25 @@ public class ReadThread extends Thread {
                         AlarmModel alarmModel = mapper.readValue(alarmStr, AlarmModel.class);
                         log.info("alarmModel: {}", alarmModel);
 //                        //
-                        try {
-                            Any[] anyArray = new Any[1];
-                            anyArray[0] = xKTSIOImpl._orb().create_any();
-                            stKtAgwAlarmExtEventHelper.insert(anyArray[0], setStKtAgwAlarmExtEvent(alarmModel));
+                        Any[] anyArray = new Any[1];
+                        anyArray[0] = xKTSIOImpl._orb().create_any();
+                        stKtAgwAlarmExtEventHelper.insert(anyArray[0], setStKtAgwAlarmExtEvent(alarmModel));
 
 
-    //                                            in_KtSioMsg.msgBody = AnyUtils.getRecvAsyncItAny(xKTSIOImpl._orb());
-                            // set Data AND return client
-    //                         KTSIOMsg ktsioMsg = setKTKtsioMsg(anyArray);
+                        //                                            in_KtSioMsg.msgBody = AnyUtils.getRecvAsyncItAny(xKTSIOImpl._orb());
+                        // set Data AND return client
+                        //                         KTSIOMsg ktsioMsg = setKTKtsioMsg(anyArray);
 
-                            KTSIOMsg ktsioMsg = setKTKtsioMsg(anyArray);
+                        KTSIOMsg ktsioMsg = setKTKtsioMsg(anyArray);
+                        try{
 
                             xKTSIOClient.recvAsyncIt(ktsioMsg, xKTSIOClient);
                             log.info("### Server RecvAsyncIt CALL ### : {}", ktsioMsg);
-
-                        }catch (Exception e){
-                            log.error(e.toString());
                         }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+
 
 //                        if (xKTSIOImpl.xKTSIOs != null) {
 //                            xKTSIOImpl.xKTSIOs.recvAsyncIt(ktsioMsg, xKTSIOImpl.xKTSIOs);
@@ -104,9 +104,7 @@ public class ReadThread extends Thread {
                 }
 
             } catch (Exception e) {
-
                 e.printStackTrace();
-
             }
         }
     }
