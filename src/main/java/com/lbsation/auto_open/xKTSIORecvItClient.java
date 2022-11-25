@@ -114,7 +114,8 @@ public class xKTSIORecvItClient {
         KTSIOMsgHolder ktsioMsgEmHolder = new KTSIOMsgHolder(ktsioMsgEm);
         xKTSIOServer.recvIt(ktsioMsgEm, ktsioMsgEmHolder);
 
-        log.info("### CALL EMSINFO ### {}", ktsioMsgEmHolder);
+        log.info("### CALL EMSINFO ### ");
+        log.info("{}", EmsInfoStHelper.extract(ktsioMsgEmHolder.value.msgBody[0]));
 
         KTSIOMsg ktsioMsgEq = setKTSIOMsg(orb, 2097152001);
         EquipInfoHelper.insert(anyArray[0], setEquipInfo());
@@ -167,8 +168,8 @@ public class xKTSIORecvItClient {
     }
 
     public static EmsInfoSt setEmsInfoSt() {
-        return  new EmsInfoSt("EMSID", "emsName", "managementAddress",
-                "opTime", "swVersion", "update", setUsageStateEnum(), setCommonOptSt());
+        return  new EmsInfoSt("EMOVE_NOMS", "EOCMS", "61.98.79.244",
+                "2022-11-24 13:30:48", "EOCMS5.1", "2017-04-01 00:00:00", setUsageStateEnum(), setCommonOptSt());
 
     }
 
@@ -177,7 +178,7 @@ public class xKTSIORecvItClient {
     }
 
     public static CommonOptSt setCommonOptSt(){
-        return new CommonOptSt("vendorName", "manufactureDate", "serialNumber", "description");
+        return new CommonOptSt("sun4v", "2017-04-01 00:00:00", "SunOS_EOCMS_T1_5.10_Generic_150400-40_sun4v_sparc_sun4v", "EOCMS description");
     }
 
     public static stKtAgwSessionInfo setStKtAgwSessionInfo(String ior){

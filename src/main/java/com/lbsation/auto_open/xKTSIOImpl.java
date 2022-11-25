@@ -72,17 +72,17 @@ public class xKTSIOImpl extends xKTSIOPOA {
             AutoOpenHistoryInsert(equipInfo);
         }
         else if(Integer.parseInt(RecvItType.EMSINFO.getTypeHax(), 16) == in_KtSioMsg.opCode){
-            EmsInfoSt emsInfoStIn = EmsInfoStHelper.extract(in_KtSioMsg.msgBody[0]);
-            log.info("### INPUT emsInfoSt: {}", emsInfoStIn);
+//            EmsInfoSt emsInfoStIn = EmsInfoStHelper.extract(in_KtSioMsg.msgBody[0]);
+//            log.info("### INPUT emsInfoSt: {}", emsInfoStIn);
             //
             if(out_KtSioMsg.value.msgBody != null){
-//                EmsInfoSt emsInfoStOut = EmsInfoStHelper.extract(in_KtSioMsg.msgBody[0]);
-//                log.info("### OUT emsInfoSt: {}", emsInfoStOut);
-                out_KtSioMsg.value.opCode = 1;
+                Any[] anyArray = new Any[1];
+                anyArray[0] = _orb().create_any();
+
+                EmsInfoStHelper.insert(anyArray[0], xKTSIORecvItClient.setEmsInfoSt());
+                out_KtSioMsg.value.msgBody = anyArray;
 
                 log.info("newKtSioMsg: {}", out_KtSioMsg);
-
-
 
 
 //                recvIt(null, out_KtSioMsg);
