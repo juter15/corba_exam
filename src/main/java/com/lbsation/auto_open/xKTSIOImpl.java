@@ -32,7 +32,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
         rt = new ReadThread(this);
     }
 
-    public String getClientIOR(){
+    public String getClientIOR() {
         return clientIOR;
     }
 //    public static void startReadThread() {
@@ -41,7 +41,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
 //    }
 
     @Override
-    public void recvIt(KTSIOMsg in_KtSioMsg, KTSIOMsgHolder out_KtSioMsg){
+    public void recvIt(KTSIOMsg in_KtSioMsg, KTSIOMsgHolder out_KtSioMsg) {
         log.info("hax: {}", String.format("%x", in_KtSioMsg.opCode)); // -> 7D000001
 
 
@@ -51,30 +51,22 @@ public class xKTSIOImpl extends xKTSIOPOA {
         log.info("in_KtSioMsg: {}", in_KtSioMsg);
         log.info("out_KtSioMsg: {}", out_KtSioMsg);
 
-        if(Integer.parseInt(RecvItType.SESSIONINFO.getTypeHax(), 16) == in_KtSioMsg.opCode){
+        if (Integer.parseInt(RecvItType.SESSIONINFO.getTypeHax(), 16) == in_KtSioMsg.opCode) {
             String ior = stKtAgwSessionInfoHelper.extract(in_KtSioMsg.msgBody[0]).eocmsMdIOR;
             log.info(ior);
             clientIOR = ior;
 
-            try{
-                if(rt.getState() ==  Thread.State.RUNNABLE){
-                    rt.interrupt();
-                    System.out.println("### Thread END###");
-                    if(rt.isInterrupted()){
-                        rt = new ReadThread(this);
-                        rt.run();
-                        System.out.println("### Thread ReStart ###");
-                    }
+            try {
+                if (rt.getRunStatus().get()) {
+                    rt.stop();
+                    rt.start();
+                } else {
+                    rt.start();
                 }
-                else{
-                    rt.run();
-                }
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-        else if(Integer.parseInt(RecvItType.EQUIPIFO.getTypeHax(), 16) == in_KtSioMsg.opCode){
+        } else if (Integer.parseInt(RecvItType.EQUIPIFO.getTypeHax(), 16) == in_KtSioMsg.opCode) {
             // DB SAVE
 
             if (conn == null) {
@@ -85,12 +77,11 @@ public class xKTSIOImpl extends xKTSIOPOA {
             log.info("equipInfo: {}", equipInfo);
             log.info("conn: {}", conn);
             AutoOpenHistoryInsert(equipInfo);
-        }
-        else if(Integer.parseInt(RecvItType.EMSINFO.getTypeHax(), 16) == in_KtSioMsg.opCode){
+        } else if (Integer.parseInt(RecvItType.EMSINFO.getTypeHax(), 16) == in_KtSioMsg.opCode) {
 //            EmsInfoSt emsInfoStIn = EmsInfoStHelper.extract(in_KtSioMsg.msgBody[0]);
 //            log.info("### INPUT emsInfoSt: {}", emsInfoStIn);
             //
-            if(out_KtSioMsg.value.msgBody != null){
+            if (out_KtSioMsg.value.msgBody != null) {
                 Any[] anyArray = new Any[1];
                 anyArray[0] = _orb().create_any();
 
@@ -103,8 +94,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
 //                recvIt(null, out_KtSioMsg);
 //                recvIt(in_KtSioMsg, out_KtSioMsg);
             }
-        }
-        else{
+        } else {
             log.info("### DEF OPCODE : {}", in_KtSioMsg.opCode);
         }
     }
@@ -112,9 +102,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
     //USED
     @Override
     public void recvAsyncIt(KTSIOMsg in_KtSioMsg, xKTSIO in_replyKTSIO) {
-        xKTSIOs = in_replyKTSIO;
-
-
+//        xKTSIOs = in_replyKTSIO;
 
 
         System.out.println("$$$ Receive AsnycIt in_KtSioMsg: " + in_KtSioMsg);

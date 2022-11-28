@@ -57,7 +57,7 @@ public class xKTSIORecvItClient {
 
         //initialize orb
         Properties props = System.getProperties();
-        props.put("com.sun.CORBA.ORBServerPort", "36269");
+        props.put("com.sun.CORBA.ORBServerPort", "36268");
         props.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
 
         ORB orb = (ORB) ORB.init(ORB_OPTIONS, props);
@@ -69,11 +69,13 @@ public class xKTSIORecvItClient {
         POA rootPOA = POAHelper.narrow(
                 orb.resolve_initial_references("RootPOA"));
         xKTSIOImpl listener = new xKTSIOImpl();
+
         rootPOA.activate_object(listener);
+        rootPOA.the_POAManager().activate();
+
         org.omg.CORBA.Object ref = rootPOA.servant_to_reference(listener);
 
         xKTSIO href = xKTSIOHelper.narrow(ref);
-
 
 
         org.omg.CORBA.Object objRef =
@@ -143,7 +145,6 @@ public class xKTSIORecvItClient {
 //        }
 
 //        //---------------------
-        rootPOA.the_POAManager().activate();
 
         //Wait for messages
         orb.run();
