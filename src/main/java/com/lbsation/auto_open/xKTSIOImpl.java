@@ -23,22 +23,19 @@ import java.util.Vector;
 @Service
 public class xKTSIOImpl extends xKTSIOPOA {
     private Vector clients = new Vector();
-    public static String clientIOR = null;
     private Connection conn = null;
     public xKTSIO xKTSIOs = null;
-    private ReadThread rt = null;
+    private ReadThread rt = new ReadThread();
 
-    public xKTSIOImpl() {
-        rt = new ReadThread(this);
-    }
-
-    public String getClientIOR() {
-        return clientIOR;
-    }
-//    public static void startReadThread() {
-//
-//        rt.start();
+//    public xKTSIOImpl() {
+//        rt = new ReadThread(this);
 //    }
+//
+//
+////    public static void startReadThread() {
+////
+////        rt.start();
+////    }
 
     @Override
     public void recvIt(KTSIOMsg in_KtSioMsg, KTSIOMsgHolder out_KtSioMsg) {
@@ -53,12 +50,14 @@ public class xKTSIOImpl extends xKTSIOPOA {
 
         if (Integer.parseInt(RecvItType.SESSIONINFO.getTypeHax(), 16) == in_KtSioMsg.opCode) {
             String ior = stKtAgwSessionInfoHelper.extract(in_KtSioMsg.msgBody[0]).eocmsMdIOR;
+            System.out.println("### GET SESSION: " + ior);
             log.info(ior);
-            clientIOR = ior;
+            rt.setIOR(ior);
 
             try {
                 if (rt.getRunStatus().get()) {
                     rt.stop();
+                    Thread.sleep(1000);
                     rt.start();
                 } else {
                     rt.start();
@@ -105,10 +104,10 @@ public class xKTSIOImpl extends xKTSIOPOA {
 //        xKTSIOs = in_replyKTSIO;
 
 
-        System.out.println("$$$ Receive AsnycIt in_KtSioMsg: " + in_KtSioMsg);
+        System.out.println("*** Receive AsnycIt in_KtSioMsg: " + in_KtSioMsg);
         Any[] anyArray = in_KtSioMsg.msgBody;
-        System.out.println("$$$ Receive AsnycIt stKtAgwAlarmExtEventH: " + stKtAgwAlarmExtEventHelper.extract(anyArray[0]));
-        System.out.println("$$$ ---------------------------------------: ");
+        System.out.println("*** Receive AsnycIt stKtAgwAlarmExtEventH: " + stKtAgwAlarmExtEventHelper.extract(anyArray[0]));
+        System.out.println("*** ---------------------------------------: ");
 
     }
 
