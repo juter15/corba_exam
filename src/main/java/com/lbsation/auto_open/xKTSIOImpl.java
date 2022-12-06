@@ -64,6 +64,11 @@ public class xKTSIOImpl extends xKTSIOPOA {
                     rt.start();
                 }
                 if (st.getRunStatus().get()) {
+                    st.stop();
+                    Thread.sleep(1000);
+                    st.start();
+                }
+                else{
                     st.start();
                 }
             } catch (Exception e) {
@@ -77,7 +82,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
             log.info("equipInfo: {}", equipInfo);
             log.info("conn: {}", conn);
             AutoOpenHistoryInsert(equipInfo);
-        } else if (Integer.parseInt(RecvItType.EMSINFO.getTypeHax(), 16) == in_KtSioMsg.opCode) {
+        } else if (xAGW.OPCODE_REQP_EMS_CONFIG == in_KtSioMsg.opCode) {
 //            EmsInfoSt emsInfoStIn = EmsInfoStHelper.extract(in_KtSioMsg.msgBody[0]);
 //            log.info("### INPUT emsInfoSt: {}", emsInfoStIn);
             //
@@ -107,8 +112,14 @@ public class xKTSIOImpl extends xKTSIOPOA {
 
         System.out.println("*** Receive AsnycIt in_KtSioMsg: " + in_KtSioMsg);
         Any[] anyArray = in_KtSioMsg.msgBody;
-        System.out.println("*** Receive AsnycIt stKtAgwAlarmExtEventH: " + stKtAgwAlarmExtEventHelper.extract(anyArray[0]));
-        System.out.println("*** ---------------------------------------: ");
+        if(in_KtSioMsg.opCode == xAGW.OPCODE_ALARM_EVENT){
+            System.out.println("*** Receive AsnycIt stKtAgwAlarmExtEventH: " + stKtAgwAlarmExtEventHelper.extract(anyArray[0]));
+            System.out.println("*** ---------------------------------------: ");
+        }
+        else if(in_KtSioMsg.opCode == xAGW.OPCODE_STATE_EVENT){
+            System.out.println("*** Receive AsnycIt StateChangeEventSt: " + StateChangeEventStHelper.extract(anyArray[0]));
+            System.out.println("*** ---------------------------------------: ");
+        }
 
     }
 

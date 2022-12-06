@@ -30,10 +30,11 @@ public class StatusThread implements Runnable {
     String clientIOR = null;
     private Thread worker;
 
-//    public ReadThread(xKTSIOImpl xKTSIOImpl) {
-////        this.xKTSIOImpl = xKTSIOImpl;
-//        System.out.println("@@@ ReadThread @@@");
-//    }
+    public void stop() {
+        running.set(false);
+        System.out.println("### STOP ###");
+    }
+
 
     public void setIOR(String ior) {
         clientIOR = ior;
@@ -63,7 +64,7 @@ public class StatusThread implements Runnable {
 //                org.jacorb.orb.ORB orb = new org.jacorb.orb.ORB();
             System.out.println("### IOR ### " + clientIOR);
             while (running.get()) {
-                Thread.sleep(1000*6*5);
+                Thread.sleep(1000 * 60 * 5);
                 if (xKTSIOClient == null) {
                     if (clientIOR == null) {
                         System.out.println("### IOR NULL ### ");
@@ -100,13 +101,13 @@ public class StatusThread implements Runnable {
     }
 
     public StateChangeEventSt setStateChangeEventSt(){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
         return new StateChangeEventSt("EMS", "EMS", "NMS0000", "", "S", "", dateFormat.format(new Date()));
     }
 
     public KTSIOMsg setKTKtsioMsg(Any[] anyArray) {
         KTSIOMsg ktsioMsg = new KTSIOMsg("EMS", (short) 6, (short) enVendorCode._VENDOR_Mercury,
-                (short) enMsgType.MSGTYPE_Alarm.value(), xAGW.OPCODE_ALARM_EVENT
+                (short) enMsgType.MSGTYPE_5MinNoti.value(), xAGW.OPCODE_STATE_EVENT
                 , 0, (short) 0, (short) 0, (short) 0, (short) 0
                 , (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, anyArray);
 

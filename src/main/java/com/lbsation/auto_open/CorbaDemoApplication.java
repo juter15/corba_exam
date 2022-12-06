@@ -48,7 +48,7 @@ public class CorbaDemoApplication {
 
     public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "61.98.79.244"};
 
-//        public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
+//        public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
     public static ORB getORB() {
         return orb;
     }

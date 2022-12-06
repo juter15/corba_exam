@@ -57,8 +57,8 @@ public class xKTSIORecvItClient {
 
         //initialize orb
         Properties props = System.getProperties();
-        props.put("com.sun.CORBA.ORBServerPort", "36268");
-        props.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
+//        props.put("com.sun.CORBA.ORBServerPort", "36268");
+//        props.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
 
         ORB orb = (ORB) ORB.init(ORB_OPTIONS, props);
 //        ORB orb = (ORB) ORB.init();
@@ -87,7 +87,7 @@ public class xKTSIORecvItClient {
 
 
 //        String corbaNameStr = "corbaname::localhost:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
-
+//
         String corbaNameStr = "corbaname::61.98.79.244:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
         log.info("corbaNameStr: {}", corbaNameStr);
 //        String corbaNameStr2 = "corbaname::14.63.156.52:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
@@ -105,14 +105,14 @@ public class xKTSIORecvItClient {
         Any any = orb.create_any();
         anyArray[0] = any;
 
-        KTSIOMsg ktsioMsgSession = setKTSIOMsg(orb, 1342177280);
+        KTSIOMsg ktsioMsgSession = setKTSIOMsg(orb, xAGW.OPCODE_REQP_Open_Session);
         stKtAgwSessionInfoHelper.insert(anyArray[0], setStKtAgwSessionInfo(orb.object_to_string(href)));
         ktsioMsgSession.msgBody = anyArray;
         KTSIOMsgHolder ktsioMsgSessionHolder = new KTSIOMsgHolder(ktsioMsgSession);
         xKTSIOServer.recvIt(ktsioMsgSession, ktsioMsgSessionHolder);
         log.info("### CALL SESSION ### ");
 
-        KTSIOMsg ktsioMsgEm = setKTSIOMsg(orb, 2080382976);
+        KTSIOMsg ktsioMsgEm = setKTSIOMsg(orb, xAGW.OPCODE_REQP_EMS_CONFIG);
         EmsInfoStHelper.insert(anyArray[0], setEmsInfoSt());
         ktsioMsgEm.msgBody = anyArray;
         KTSIOMsgHolder ktsioMsgEmHolder = new KTSIOMsgHolder(ktsioMsgEm);
@@ -126,7 +126,9 @@ public class xKTSIORecvItClient {
         ktsioMsgEq.msgBody = anyArray;
         KTSIOMsgHolder ktsioMsgEqHolder = new KTSIOMsgHolder(ktsioMsgEq);
         xKTSIOServer.recvIt(ktsioMsgEq, ktsioMsgEqHolder);
-        log.info("### CALL EQUIPINFO ### ");
+        log.info("### CALL EQUIPINFO  ### ");
+        log.info("### EQUIPINFO RESULT: {} ", ktsioMsgEqHolder.value.result);
+
 
 
 //        //---------------------
@@ -153,9 +155,9 @@ public class xKTSIORecvItClient {
     public static KTSIOMsg setKTSIOMsg(ORB orb, int opCode) throws JsonProcessingException {
 
 
-        KTSIOMsg ktsioMsg = new KTSIOMsg("sourceSys", (short) 1, (short) 1,
-                (short) 1, opCode, 1, (short) 1, (short) 1, (short) 1, (short) 1,
-                (short) 1, (short) 1, (short) 1, (short) 1, (short) 1, new Any[1]);
+        KTSIOMsg ktsioMsg = new KTSIOMsg("sourceSys", (short) 6, (short) enVendorCode._VENDOR_Mercury,
+                (short) 1, opCode, 0, (short) 0, (short) 0, (short) 0, (short) 0,
+                (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, new Any[1]);
 
         return ktsioMsg;
     }
