@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 @SpringBootApplication
 public class CorbaDemoApplication {
     public static ORB orb = null;
-
+    public static String ior = null;
 
     public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "61.98.79.244"};
 
@@ -119,13 +119,14 @@ public class CorbaDemoApplication {
             ncRef.rebind(name, href);
         } catch (NotFound nf) {
 
-            createContextPath(ncRef, name);
-            ncRef.rebind(name, href);
+//            createContextPath(ncRef, name);
+//            ncRef.rebind(name, href);
         }
+        ior = orb.object_to_string(href);
 //        ((com.sun.corba.se.spi.orb.ORB) orb).register_initial_reference("KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD", href);
         System.out.println("New account created and registered.  URLs are: ");
         System.out.println("\nIOR");
-        System.out.println("\t" + orb.object_to_string(href));
+        System.out.println("\t" + ior);
 
         System.out.println("NMS-SERVER ready started and waiting request ...");
 
@@ -135,39 +136,43 @@ public class CorbaDemoApplication {
 
     }
 
-    public static void createContextPath(
-            NamingContextExt nc,
-            NameComponent[] name
-    )
-            throws org.omg.CORBA.UserException {
-        boolean isNotFound = false;
+//    public static void createContextPath(
+//            NamingContextExt nc,
+//            NameComponent[] name
+//    )
+//            throws org.omg.CORBA.UserException {
+//        boolean isNotFound = false;
+//
+//
+//        NamingContext tmpCtx = null;
+//        try {
+//            NameComponent[] name2 = new NameComponent[1];
+//            name2[0] = name[0];
+//            System.out.println("@@@");
+//            tmpCtx = nc.bind_new_context(name2);
+//        } catch (NotFound nf) {
+//            System.err.println("!!!");
+//            isNotFound = true;
+//        }
+//
+//        if (isNotFound) {
+//            System.err.println("This cannot happen!");
+//            return;
+//        }
+//
+//
+//        for (int i = 1; i < name.length - 1; i++) {
+////            System.out.println("i "+name[i]);
+//            NameComponent[] tmpName = new NameComponent[1 + i];
+//            for (int j = 0; j <= i; j++) {
+//                tmpName[j] = name[j];
+//            }
+//            tmpCtx = nc.bind_new_context(tmpName);
+//        }
+//
+//    }
 
-
-        NamingContext tmpCtx = null;
-        try {
-            NameComponent[] name2 = new NameComponent[1];
-            name2[0] = name[0];
-            tmpCtx = nc.bind_new_context(name2);
-            System.err.println("@@@");
-        } catch (NotFound nf) {
-            System.err.println("!!!");
-            isNotFound = true;
-        }
-
-        if (isNotFound) {
-            System.err.println("This cannot happen!");
-            return;
-        }
-
-
-        for (int i = 1; i < name.length - 1; i++) {
-//            System.out.println("i "+name[i]);
-            NameComponent[] tmpName = new NameComponent[1 + i];
-            for (int j = 0; j <= i; j++) {
-                tmpName[j] = name[j];
-            }
-            tmpCtx = nc.bind_new_context(tmpName);
-        }
-
+    public String getIor(){
+        return ior;
     }
 }

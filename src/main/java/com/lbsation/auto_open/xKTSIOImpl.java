@@ -26,6 +26,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
     private Connection conn = null;
     public xKTSIO xKTSIOs = null;
     private ReadThread rt = new ReadThread();
+    private StatusThread st = new StatusThread();
 
 //    public xKTSIOImpl() {
 //        rt = new ReadThread(this);
@@ -40,7 +41,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
     @Override
     public void recvIt(KTSIOMsg in_KtSioMsg, KTSIOMsgHolder out_KtSioMsg) {
         log.info("hax: {}", String.format("%x", in_KtSioMsg.opCode)); // -> 7D000001
-
+        ;
 
         log.info("xKTSIO: {}", xKTSIOs);
 
@@ -48,12 +49,12 @@ public class xKTSIOImpl extends xKTSIOPOA {
         log.info("in_KtSioMsg: {}", in_KtSioMsg);
         log.info("out_KtSioMsg: {}", out_KtSioMsg);
 
-        if (Integer.parseInt(RecvItType.SESSIONINFO.getTypeHax(), 16) == in_KtSioMsg.opCode) {
+        if (xAGW.OPCODE_REQP_Open_Session == in_KtSioMsg.opCode) {
             String ior = stKtAgwSessionInfoHelper.extract(in_KtSioMsg.msgBody[0]).eocmsMdIOR;
             System.out.println("### GET SESSION: " + ior);
             log.info(ior);
             rt.setIOR(ior);
-
+            st.setIOR(ior);
             try {
                 if (rt.getRunStatus().get()) {
                     rt.stop();
@@ -62,15 +63,15 @@ public class xKTSIOImpl extends xKTSIOPOA {
                 } else {
                     rt.start();
                 }
+                if (st.getRunStatus().get()) {
+                    st.start();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         } else if (Integer.parseInt(RecvItType.EQUIPIFO.getTypeHax(), 16) == in_KtSioMsg.opCode) {
             // DB SAVE
 
-            if (conn == null) {
-                conn = DbConfiguration.dbConnect();
-            }
 
             EquipInfo equipInfo = EquipInfoHelper.extract(in_KtSioMsg.msgBody[0]);
             log.info("equipInfo: {}", equipInfo);
@@ -144,6 +145,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
 
 
     public void AutoOpenHistoryInsert(EquipInfo equipInfo) {
+        conn = DbConfiguration.dbConnect();
         String sql = "INSERT INTO AUTO_OPEN_HISTORY_T"
                 + "(AO_HISTORY_ID, EQUIP_OP_CODE, EQUIPMENT_ID, MANAGED_IP, HEADQUARTER_ID," +
                 "HEADQUARTER_NAME, NSC_ID, NSC_NAME, OMC_ID, OMC_NAME," +
@@ -215,7 +217,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
 
             pstmt.executeUpdate();
             conn.commit();
-//            conn.close();
+            conn.close();
         } catch (Exception e) {
             log.error("error: {}", e.getMessage());
         }

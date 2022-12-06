@@ -46,9 +46,11 @@ public final class StateChangeEventSt implements org.omg.CORBA.portable.IDLEntit
     StateChangeEventSt stateChangeEventSt = new StateChangeEventSt();
     stateChangeEventSt.emsId = "SLGA12132";
     stateChangeEventSt.agwId = "SLGS13241";
-    stateChangeEventSt.status = "CARD START UP";
+
+    stateChangeEventSt.status = "NMS0000";
     stateChangeEventSt.location = "";
-    stateChangeEventSt.probableCause = "";
+    stateChangeEventSt.probableCause = "S";
+
     stateChangeEventSt.addMessage = "";
     stateChangeEventSt.eventTime = "20221104 00:00:00";
 

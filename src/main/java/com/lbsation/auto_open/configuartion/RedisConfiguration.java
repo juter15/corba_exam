@@ -6,6 +6,7 @@ import redis.clients.jedis.util.Pool;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -50,8 +51,8 @@ public class RedisConfiguration {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         jedisPoolConfig.setMaxIdle(40);
         jedisPoolConfig.setMinIdle(10);
-
-        return new JedisCluster(jedisClusterNodes);
+        jedisPoolConfig.setMaxWait(Duration.ofMillis(5));
+        return new JedisCluster(jedisClusterNodes, Duration.ZERO.getNano());
     }
 
 

@@ -1,14 +1,15 @@
 package com.lbsation.auto_open;
 
-import KTCosNMS.KTSIOMsg;
+import KTCosNMS.*;
+import KTCosNMS.xAGWPackage.enMsgType;
 import KTCosNMS.xAGWPackage.stKtAgwAlarmExtEvent;
 import KTCosNMS.xAGWPackage.stKtAgwAlarmExtEventHelper;
 import KTCosNMS.xAGWPackage.stKtAgwSessionInfo;
-import KTCosNMS.xKTSIO;
-import KTCosNMS.xKTSIOHelper;
 import com.lbsation.auto_open.configuartion.RedisConfiguration;
 import com.lbsation.auto_open.enums.AgwTypeCode;
+import com.lbsation.auto_open.enums.AlarmData;
 import com.lbsation.auto_open.enums.MsgType;
+import com.lbsation.auto_open.enums.OnOff;
 import com.lbsation.auto_open.model.AlarmModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,7 @@ public class ReadThread implements Runnable {
         clientIOR = ior;
 
     }
+
 
     public void start() {
         worker = new Thread(this);
@@ -100,13 +102,18 @@ public class ReadThread implements Runnable {
                         stKtAgwAlarmExtEventHelper.insert(anyArray[0], setStKtAgwAlarmExtEvent(alarmModel));
 
 
-                        KTSIOMsg ktsioMsg = setKTKtsioMsg(anyArray);
+                        KTSIOMsg ktsioMsg = setKTKtsioMsg(anyArray, alarmModel);
                         log.info("{}", ktsioMsg);
 //                        Thread.sleep(1000);
-                        xKTSIOClient.recvAsyncIt(ktsioMsg, xKTSIOClient);
-
-                        System.out.println("### Server RecvAsyncIt CALLED ### ");
-
+                        try{
+                            xKTSIOClient.recvAsyncIt(ktsioMsg, xKTSIOClient);
+                            System.out.println("### Server RecvAsyncIt CALLED ### ");
+                        }
+                        catch (Exception e){
+                            System.out.println("### Server RecvAsyncIt ERROR ### " + e.getMessage());
+//                            clusterPool.rpush("NMS_ALARM_INFO", alarmStr);
+//                            running.set(false);
+                        }
 
 //                        if (xKTSIOImpl.xKTSIOs != null) {
 //                            xKTSIOImpl.xKTSIOs.recvAsyncIt(ktsioMsg, xKTSIOImpl.xKTSIOs);
@@ -119,7 +126,7 @@ public class ReadThread implements Runnable {
 
                     }
                 }
-
+                System.out.println("### Thead EXIT ###");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -130,19 +137,30 @@ public class ReadThread implements Runnable {
     }
 
     public stKtAgwAlarmExtEvent setStKtAgwAlarmExtEvent(AlarmModel alarmModel) {
-
-        stKtAgwAlarmExtEvent stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent(AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
+        stKtAgwAlarmExtEvent stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent();
+        stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent( AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
                 alarmModel.getTid(), alarmModel.getAlarmCode(), setNativeDeviceName(alarmModel), 0xffffffff
                 , alarmModel.getAlarmData().getServerity()
-                , (short) 0, "0", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 27, (short) 0
-                , alarmModel.getCreateTime(), alarmModel.getInformation(), "()", "");
+                , (short) 0, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0
+                , alarmModel.getCreateTime(), alarmModel.getInformation(), "", "");
         log.info("{}", stKtAgwAlarmExtEvent);
+        if(alarmModel.getOnoff().equals(OnOff.OFF)){
+            stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent( AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
+                    alarmModel.getTid(), alarmModel.getAlarmCode(), setNativeDeviceName(alarmModel), 0xffffffff
+                    , AlarmData.CLEAR.getServerity()
+                    , (short) 0, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0
+                    , alarmModel.getCreateTime(), alarmModel.getInformation(), "", "");
+            log.info("{}", stKtAgwAlarmExtEvent);
+        }
         return stKtAgwAlarmExtEvent;
     }
 
-    public KTSIOMsg setKTKtsioMsg(Any[] anyArray) {
-        KTSIOMsg ktsioMsg = new KTSIOMsg("SLGA12132", (short) 6, (short) 3,
-                MsgType.MSGTYPE_Alarm.getMsgType(), 2080436225
+    /*
+    * neType: ???
+    * */
+    public KTSIOMsg setKTKtsioMsg(Any[] anyArray, AlarmModel alarmModel) {
+        KTSIOMsg ktsioMsg = new KTSIOMsg(alarmModel.getTid(), (short) 6, (short) enVendorCode._VENDOR_Mercury,
+                (short) enMsgType.MSGTYPE_Alarm.value(), xAGW.OPCODE_ALARM_EVENT
                 , 0, (short) 0, (short) 0, (short) 0, (short) 0
                 , (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, anyArray);
 
