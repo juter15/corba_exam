@@ -2,6 +2,8 @@ package com.lbsation.auto_open;
 
 import KTCosNMS.*;
 import KTCosNMS.xAGWPackage.*;
+import KTCosNMS.xAGWPackage.EquipInfo;
+import KTCosNMS.xAGWPackage.EquipInfoHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sun.corba.se.impl.corba.ContextImpl;
 import com.sun.corba.se.impl.ior.iiop.IIOPAddressImpl;
@@ -171,7 +173,7 @@ public class xKTSIORecvItClient {
                 "v", "spc", "spcAlias", "eqN2", "mainClsType",
                 "subClsType", "oNCd", "oltMstIp", "oltNeAlias", "oMl",
                 "oUCd", "rnNesCode", "rnNeAlias", "rnMN", "rUCd",
-                "oltLinkIp", 111, "ipsecgwIp", "tCom", "mac", "mgid");
+                "oltLinkIp", 111, "ipsecgwIp", "tCom", "mac", "mgid", "docNum");
     }
 
     public static EmsInfoSt setEmsInfoSt() {

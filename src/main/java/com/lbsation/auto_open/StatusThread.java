@@ -102,7 +102,9 @@ public class StatusThread implements Runnable {
 
     public StateChangeEventSt setStateChangeEventSt(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        return new StateChangeEventSt("EMS", "EMS", "NMS0000", "", "S", "", dateFormat.format(new Date()));
+        StateChangeEventSt stateChangeEventSt =  new StateChangeEventSt("EMS", "EMS", "NMS0000", "", "S", "", dateFormat.format(new Date()));
+        log.info("{}", stateChangeEventSt);
+        return stateChangeEventSt;
     }
 
     public KTSIOMsg setKTKtsioMsg(Any[] anyArray) {

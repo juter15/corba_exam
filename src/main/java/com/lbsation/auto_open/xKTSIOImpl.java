@@ -2,6 +2,8 @@ package com.lbsation.auto_open;
 
 import KTCosNMS.*;
 import KTCosNMS.xAGWPackage.*;
+import KTCosNMS.xAGWPackage.EquipInfo;
+import KTCosNMS.xAGWPackage.EquipInfoHelper;
 import com.lbsation.auto_open.configuartion.DbConfiguration;
 import com.lbsation.auto_open.enums.RecvItType;
 import lombok.extern.slf4j.Slf4j;
@@ -74,7 +76,8 @@ public class xKTSIOImpl extends xKTSIOPOA {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } else if (Integer.parseInt(RecvItType.EQUIPIFO.getTypeHax(), 16) == in_KtSioMsg.opCode) {
+
+        } else if (xAGW.OPCODE_REQP_TDX_AGW_EQUIP_CONFIG == in_KtSioMsg.opCode) {
             // DB SAVE
 
 
@@ -133,22 +136,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
 
     }
 
-    @Override
-    public String echoString(String message) {
-        log.info("MESSGE: {}", message);
-        xKTSIOs.echoString(message);
-//        Iterator it = clients.iterator();
-//
-//        while (it.hasNext()) {
-//            xKTSIO lt = (xKTSIO) it.next();
-//            lt.echoString(message);
-//            //FOR THE SIMPLER EXAMPLE, ADD A SIMPLE
-//            //MESSAGE TO BE CALLED BACK, FOR EXAMPLE,
-//            //SLEEP FOR 30 SECONDS, THEN SEND THE TIME
-//        }
-        System.out.println("### Server Message: " + message);
-        return "## M ##";
-    }
+
 
 //    public static void a(){
 //        a.
@@ -193,7 +181,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
 
                 + createInsertQuery(equipInfo.vendorCode)
                 + createInsertQuery(equipInfo.modelName)
-                + createInsertQuery(equipInfo.modelNamesCode)
+                + createInsertQuery(equipInfo.modelNameSCode)
                 + createInsertQuery(equipInfo.installLocation)
                 + createInsertQuery(equipInfo.addr1)
                 + createInsertQuery(equipInfo.degree)
