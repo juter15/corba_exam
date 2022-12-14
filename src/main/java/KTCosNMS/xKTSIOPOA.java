@@ -41,7 +41,8 @@ public abstract class xKTSIOPOA extends org.omg.PortableServer.Servant
        case 0:  // KTCosNMS/xKTSIO/recvIt
        {
          KTCosNMS.KTSIOMsg in_KtSioMsg = KTCosNMS.KTSIOMsgHelper.read (in);
-         KTCosNMS.KTSIOMsgHolder out_KtSioMsg = new KTCosNMS.KTSIOMsgHolder ();
+//         KTCosNMS.KTSIOMsgHolder out_KtSioMsg = new KTCosNMS.KTSIOMsgHolder ();
+         KTCosNMS.KTSIOMsgHolder out_KtSioMsg = new KTCosNMS.KTSIOMsgHolder (in_KtSioMsg);
          this.recvIt (in_KtSioMsg, out_KtSioMsg);
          out = $rh.createReply();
          KTCosNMS.KTSIOMsgHelper.write (out, out_KtSioMsg.value);

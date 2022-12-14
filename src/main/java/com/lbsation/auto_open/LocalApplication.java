@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +37,7 @@ public class LocalApplication {
 
     public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBInitialHost", "localhost"};
 
-//        public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
+//        public static final String[] ORB_OPTIONS = new String[]{"-Port", "36267", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
     public static ORB getORB() {
         return orb;
     }
@@ -47,14 +48,14 @@ public class LocalApplication {
 
         List<String> orbdStartupCommands = new ArrayList<>();
 
-//        orbdStartupCommands.add("orbd");
-//        orbdStartupCommands.addAll(Arrays.asList(ORB_OPTIONS));
-//
-//        Process orbdProcess = new ProcessBuilder(orbdStartupCommands).start();
-//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-//            System.out.println("NMS-SERVER Exiting ...");
-//            orbdProcess.destroy();
-//        }));
+        orbdStartupCommands.add("orbd");
+        orbdStartupCommands.addAll(Arrays.asList(ORB_OPTIONS));
+
+        Process orbdProcess = new ProcessBuilder(orbdStartupCommands).start();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("NMS-SERVER Exiting ...");
+            orbdProcess.destroy();
+        }));
 
         TimeUnit.SECONDS.sleep(1);
         try {
@@ -71,7 +72,7 @@ public class LocalApplication {
         Properties prop = new Properties();
         // 서버 실행 리슨포트 10000으로 설정
         prop.put("com.sun.CORBA.ORBServerPort", "36268");
-        prop.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
+//        prop.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
 //
 
         orb = (ORB) ORB.init(options, prop);

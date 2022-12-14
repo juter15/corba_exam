@@ -1,5 +1,7 @@
 package com.lbsation.auto_open.configuartion;
 
+import com.lbsation.auto_open.CorbaDemoApplication;
+import com.lbsation.auto_open.model.ConfigModel;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.*;
 import redis.clients.jedis.util.Pool;
@@ -12,20 +14,12 @@ import java.util.Properties;
 import java.util.Set;
 @Slf4j
 public class RedisConfiguration {
-    private static String propFile = "/home/agwems/AGWEMS/yaml/application-autoOpen.yaml";
+
 //    private static String propFile = "C:\\emsProject\\corba_exam\\auto_open\\src\\main\\resources\\config/application-autoOpen.yaml";
 
 
     public static JedisCluster jedisCluster() {
-        Properties prop = new Properties();
-        try {
-            // 프로퍼티 파일 스트림에 담기
-            FileInputStream fis = new FileInputStream(propFile);
-            // 프로퍼티 파일 로딩
-            prop.load(new java.io.BufferedInputStream(fis));
-        } catch (IOException e) {
-            System.out.println("COFIG 파일 로드 실패");
-        }
+        ConfigModel config = CorbaDemoApplication.getConfigModel();
 //        try {
 //            Set<HostAndPort> jedisClusterNodes = new HashSet<HostAndPort>();
 //
@@ -38,7 +32,7 @@ public class RedisConfiguration {
 //            e.printStackTrace();
 //            return null;
 //        }
-        String[] redisNodes = prop.getProperty("REDIS_NODES").split(",");
+        String[] redisNodes = config.getRedisNodes();
         System.out.println("CONFIG: " + redisNodes);
         Set<HostAndPort> jedisClusterNodes = new HashSet<>();
         for (String node : redisNodes) {

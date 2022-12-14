@@ -50,7 +50,7 @@ import static org.jacorb.orb.util.PrintIOR.printIOR;
 
 @Slf4j
 public class xKTSIORecvItClient {
-    public static final String[] ORB_OPTIONS = new String[]{"-ORBInitialPort", "36267", "-ORBInitialHost", "localhost"};
+    public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBInitialHost", "localhost"};
     public static String ior = null;
 
     public static void main(String args[]) throws Exception {
@@ -59,8 +59,9 @@ public class xKTSIORecvItClient {
 
         //initialize orb
         Properties props = System.getProperties();
-//        props.put("com.sun.CORBA.ORBServerPort", "36268");
-//        props.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
+        props.put("com.sun.CORBA.ORBServerPort", "36268");
+//        props.put("com.sun.CORBA.ORBServerHost", "10.0.65.58");
+        props.put("com.sun.CORBA.ORBServerHost", "211.58.205.50");
 
         ORB orb = (ORB) ORB.init(ORB_OPTIONS, props);
 //        ORB orb = (ORB) ORB.init();
@@ -91,6 +92,7 @@ public class xKTSIORecvItClient {
 //        String corbaNameStr = "corbaname::localhost:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
 //
         String corbaNameStr = "corbaname::61.98.79.244:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
+//        String corbaNameStr = "corbaname::10.240.4.112:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
         log.info("corbaNameStr: {}", corbaNameStr);
 //        String corbaNameStr2 = "corbaname::14.63.156.52:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD";
 
@@ -99,7 +101,7 @@ public class xKTSIORecvItClient {
 
         Object obj = orb.string_to_object(corbaNameStr);
         String iorStr = orb.object_to_string(obj);
-//        log.info("iorStr: {}", iorStr);
+        log.info("iorStr: {}", iorStr);
 
         xKTSIO xKTSIOServer = xKTSIOHelper.narrow(orb.string_to_object(iorStr));
 //        xKTSIO xKTSIOServer2 = xKTSIOHelper.narrow(orb.string_to_object("corbaname::61.98.79.244:36267#KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD"));
@@ -108,7 +110,9 @@ public class xKTSIORecvItClient {
         anyArray[0] = any;
 
         KTSIOMsg ktsioMsgSession = setKTSIOMsg(orb, xAGW.OPCODE_REQP_Open_Session);
+        log.info("ktsioMsgSession: {}", ktsioMsgSession);
         stKtAgwSessionInfoHelper.insert(anyArray[0], setStKtAgwSessionInfo(orb.object_to_string(href)));
+//        KTSIOMsgHelper.insert(anyArray[0], ktsioMsgSession);
         ktsioMsgSession.msgBody = anyArray;
         KTSIOMsgHolder ktsioMsgSessionHolder = new KTSIOMsgHolder(ktsioMsgSession);
         xKTSIOServer.recvIt(ktsioMsgSession, ktsioMsgSessionHolder);
@@ -136,13 +140,14 @@ public class xKTSIORecvItClient {
 //        //---------------------
 //        Properties env = new Properties();
 //        env.put("java.naming.factory.initial","com.sun.jndi.cosnaming.CNCtxFactory");
-//        env.put("java.naming.provider.url", "iiop://" + "14.63.156.52" +":"+"36267");
+//        env.put("java.naming.provider.url", "iiop://" + "10.240.4.112" +":"+"36267");
 //        Context ic = new InitialContext(env);
 //
 //
 //        NameComponent[] nameComp = new NameComponent[1];
 //
-//        NamingEnumeration nen = ic.list("/KT/AGW/EMOVE_NOMS2");
+////        NamingEnumeration nen = ic.list("/KT/AGW/EMOVE_NOMS2");
+//        NamingEnumeration nen = ic.list("/");
 //        List<String> nameList = new ArrayList<>();
 //        while (nen.hasMore()) {
 //            System.out.println("@@@ "+nen.next());
@@ -160,6 +165,7 @@ public class xKTSIORecvItClient {
         KTSIOMsg ktsioMsg = new KTSIOMsg("sourceSys", (short) 6, (short) enVendorCode._VENDOR_Mercury,
                 (short) 1, opCode, 0, (short) 0, (short) 0, (short) 0, (short) 0,
                 (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, new Any[1]);
+        log.info("{}", ktsioMsg);
 
         return ktsioMsg;
     }

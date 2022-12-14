@@ -1,5 +1,7 @@
 package com.lbsation.auto_open.configuartion;
 
+import com.lbsation.auto_open.CorbaDemoApplication;
+import com.lbsation.auto_open.model.ConfigModel;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 
@@ -12,29 +14,18 @@ import java.util.Properties;
 import java.util.Set;
 
 public class DbConfiguration {
-    private static String propFile = "/home/agwems/AGWEMS/yaml/application-autoOpen.yaml";
 //    private static String propFile = "C:\\emsProject\\corba_exam\\auto_open\\src\\main\\resources\\config/application-autoOpen.yaml";
     public static Connection dbConnect()  {
-        Properties prop = new Properties();
 
 
-        // 프로퍼티 파일 스트림에 담기
-        try{
-
-            FileInputStream fis = new FileInputStream(propFile);
-            // 프로퍼티 파일 로딩
-            prop.load(new java.io.BufferedInputStream(fis));
-        }
-        catch (IOException e){
-            System.out.println("COFIG 파일 로드 실패");
-        }
+        ConfigModel config = CorbaDemoApplication.getConfigModel();
 
         final String driver = "org.mariadb.jdbc.Driver";
-        final String DB_IP = prop.getProperty("DB_IP");
-        final String DB_PORT = prop.getProperty("DB_PORT");
-        final String DB_NAME = prop.getProperty("DB_NAME");
-        final String DB_USER = prop.getProperty("DB_USER");
-        final String DB_PW = prop.getProperty("DB_PW");
+        final String DB_IP = config.getDbIp();
+        final String DB_PORT = config.getDbPort();
+        final String DB_NAME = config.getDbName();
+        final String DB_USER = config.getDbUser();
+        final String DB_PW = config.getDbPw();
         final String DB_URL =
                 "jdbc:mariadb://" + DB_IP + ":" + DB_PORT + "/" + DB_NAME;
 

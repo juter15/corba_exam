@@ -2,6 +2,8 @@ package com.lbsation.auto_open;
 
 import KTCosNMS.xKTSIO;
 import KTCosNMS.xKTSIOHelper;
+import com.lbsation.auto_open.configuartion.ConfigFile;
+import com.lbsation.auto_open.model.ConfigModel;
 import com.sun.corba.se.impl.ior.iiop.IIOPProfileTemplateImpl;
 import com.sun.corba.se.impl.orbutil.ORBUtility;
 import com.sun.corba.se.spi.ior.IORFactories;
@@ -46,8 +48,10 @@ public class CorbaDemoApplication {
     public static ORB orb = null;
     public static String ior = null;
 
-    public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "61.98.79.244"};
-
+    public static final ConfigModel configModel = ConfigFile.getConfig();
+//    public static final String[] ORB_OPTIONS = new String[]{"-port", configModel.getOrbPort(), "-ORBInitialPort", "1050", "-ORBInitialHost", configModel.getOrbServerHost(), "-ORBServerHost", configModel.getOrbServerHost()};
+    public static final String[] ORB_OPTIONS = new String[]{"-port", configModel.getOrbPort(), "-ORBInitialPort", "1050",  "-ORBInitialHost", "localhost"};
+//
 //        public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
     public static ORB getORB() {
         return orb;
@@ -55,10 +59,12 @@ public class CorbaDemoApplication {
 
     public static void main(String[] args) throws InterruptedException, IOException {
 
+
         System.out.println("### ation.com config3 ###");
 
         List<String> orbdStartupCommands = new ArrayList<>();
 
+////        orbdStartupCommands.add(configModel.getJavaHome()+"orbd");
 //        orbdStartupCommands.add("orbd");
 //        orbdStartupCommands.addAll(Arrays.asList(ORB_OPTIONS));
 //
@@ -80,10 +86,11 @@ public class CorbaDemoApplication {
     }
 
     private static void bindService(String[] options) throws UserException, FileNotFoundException, UnknownHostException {
+        String[] nameComponent = configModel.getNameComponent();
+
         Properties prop = new Properties();
-        // 서버 실행 리슨포트 10000으로 설정
-        prop.put("com.sun.CORBA.ORBServerPort", "36268");
-        prop.put("com.sun.CORBA.ORBServerHost", "61.98.79.244");
+        prop.put("com.sun.CORBA.ORBServerPort", configModel.getOrbServerPort());
+        prop.put("com.sun.CORBA.ORBServerHost", configModel.getOrbServerHost());
 //
 
         orb = (ORB) ORB.init(options, prop);
@@ -104,10 +111,10 @@ public class CorbaDemoApplication {
         NamingContextExt ncRef = NamingContextExtHelper.narrow(objRef);
 
         NameComponent[] name = {
-                new NameComponent("KT", ""),
-                new NameComponent("AGW", ""),
-                new NameComponent("EMOVE_NOMS2", ""),
-                new NameComponent("KT_BCNNMS_MD", "")
+                new NameComponent(nameComponent[0], ""),
+                new NameComponent(nameComponent[1], ""),
+                new NameComponent(nameComponent[2], ""),
+                new NameComponent(nameComponent[3], "")
         };
 
         String nameStr = ncRef.to_string(name);
@@ -119,8 +126,8 @@ public class CorbaDemoApplication {
             ncRef.rebind(name, href);
         } catch (NotFound nf) {
 
-//            createContextPath(ncRef, name);
-//            ncRef.rebind(name, href);
+            createContextPath(ncRef, name);
+            ncRef.rebind(name, href);
         }
         ior = orb.object_to_string(href);
 //        ((com.sun.corba.se.spi.orb.ORB) orb).register_initial_reference("KT/AGW/EMOVE_NOMS2/KT_BCNNMS_MD", href);
@@ -136,43 +143,47 @@ public class CorbaDemoApplication {
 
     }
 
-//    public static void createContextPath(
-//            NamingContextExt nc,
-//            NameComponent[] name
-//    )
-//            throws org.omg.CORBA.UserException {
-//        boolean isNotFound = false;
-//
-//
-//        NamingContext tmpCtx = null;
-//        try {
-//            NameComponent[] name2 = new NameComponent[1];
-//            name2[0] = name[0];
-//            System.out.println("@@@");
-//            tmpCtx = nc.bind_new_context(name2);
-//        } catch (NotFound nf) {
-//            System.err.println("!!!");
-//            isNotFound = true;
-//        }
-//
-//        if (isNotFound) {
-//            System.err.println("This cannot happen!");
-//            return;
-//        }
-//
-//
-//        for (int i = 1; i < name.length - 1; i++) {
-////            System.out.println("i "+name[i]);
-//            NameComponent[] tmpName = new NameComponent[1 + i];
-//            for (int j = 0; j <= i; j++) {
-//                tmpName[j] = name[j];
-//            }
-//            tmpCtx = nc.bind_new_context(tmpName);
-//        }
-//
-//    }
+    public static void createContextPath(
+            NamingContextExt nc,
+            NameComponent[] name
+    )
+            throws org.omg.CORBA.UserException {
+        boolean isNotFound = false;
 
-    public String getIor(){
+
+        NamingContext tmpCtx = null;
+        try {
+            NameComponent[] name2 = new NameComponent[1];
+            name2[0] = name[0];
+            System.out.println("@@@");
+            tmpCtx = nc.bind_new_context(name2);
+        } catch (NotFound nf) {
+            System.err.println("!!!");
+            isNotFound = true;
+        }
+
+        if (isNotFound) {
+            System.err.println("This cannot happen!");
+            return;
+        }
+
+
+        for (int i = 1; i < name.length - 1; i++) {
+//            System.out.println("i "+name[i]);
+            NameComponent[] tmpName = new NameComponent[1 + i];
+            for (int j = 0; j <= i; j++) {
+                tmpName[j] = name[j];
+            }
+            tmpCtx = nc.bind_new_context(tmpName);
+        }
+//
+    }
+
+    public static String getIor(){
         return ior;
+    }
+
+    public static ConfigModel getConfigModel(){
+        return configModel;
     }
 }

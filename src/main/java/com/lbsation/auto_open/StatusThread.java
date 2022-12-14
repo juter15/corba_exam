@@ -55,8 +55,8 @@ public class StatusThread implements Runnable {
     public void run() {
         running.set(true);
         xKTSIO xKTSIOClient = null;
-
-        System.out.println("### START ### : xKTSIOClient : " + xKTSIOClient + "clientIOR: {}" + clientIOR);
+        String ior = clientIOR;
+        System.out.println("### START ### : STATUS : " + xKTSIOClient + "clientIOR: {}" + clientIOR);
         ObjectMapper mapper = new ObjectMapper();
 
 //        try (Jedis jedis = RedisConfiguration.JedisConnect()) {
@@ -65,10 +65,12 @@ public class StatusThread implements Runnable {
             System.out.println("### IOR ### " + clientIOR);
             while (running.get()) {
                 Thread.sleep(1000 * 60 * 5);
+                if(!ior.equals(clientIOR)){
+                    break;
+                }
                 if (xKTSIOClient == null) {
                     if (clientIOR == null) {
                         System.out.println("### IOR NULL ### ");
-
                     }
                     xKTSIOClient = xKTSIOHelper.narrow(orb.string_to_object(clientIOR));
                     System.out.println("### SET xKTSIOClient ### ");

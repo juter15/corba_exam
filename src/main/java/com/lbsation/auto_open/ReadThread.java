@@ -66,8 +66,9 @@ public class ReadThread implements Runnable {
     public void run() {
         running.set(true);
         xKTSIO xKTSIOClient = null;
+        String ior = clientIOR;
 
-        System.out.println("### START ### : xKTSIOClient : " + xKTSIOClient + "clientIOR: {}" + clientIOR);
+        System.out.println("### START ### : NOTI : " + xKTSIOClient + "clientIOR: {}" + clientIOR);
         ObjectMapper mapper = new ObjectMapper();
 
         try (JedisCluster clusterPool = RedisConfiguration.jedisCluster()) {
@@ -76,6 +77,10 @@ public class ReadThread implements Runnable {
 //                org.jacorb.orb.ORB orb = new org.jacorb.orb.ORB();
                 System.out.println("### IOR ### " + clientIOR);
                 while (running.get()) {
+
+                    if(!ior.equals(clientIOR)){
+                        break;
+                    }
                     if (xKTSIOClient == null) {
                         if (clientIOR == null) {
                             System.out.println("### IOR NULL ### ");

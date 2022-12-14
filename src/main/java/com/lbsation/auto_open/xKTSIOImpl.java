@@ -9,8 +9,8 @@ import com.lbsation.auto_open.enums.RecvItType;
 import lombok.extern.slf4j.Slf4j;
 import org.jacorb.orb.ORBSingleton;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORB;
 import org.omg.CORBA.ORBPackage.InvalidName;
+import org.omg.CORBA_2_3.ORB;
 import org.omg.PortableServer.POA;
 import org.omg.PortableServer.POAHelper;
 import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
@@ -29,6 +29,10 @@ public class xKTSIOImpl extends xKTSIOPOA {
     public xKTSIO xKTSIOs = null;
     private ReadThread rt = new ReadThread();
     private StatusThread st = new StatusThread();
+
+    private static final String myIOR = CorbaDemoApplication.getIor();
+    private static final ORB orb = CorbaDemoApplication.getORB();
+
 
 //    public xKTSIOImpl() {
 //        rt = new ReadThread(this);
@@ -57,6 +61,8 @@ public class xKTSIOImpl extends xKTSIOPOA {
             log.info(ior);
             rt.setIOR(ior);
             st.setIOR(ior);
+
+
             try {
                 if (rt.getRunStatus().get()) {
                     rt.stop();
@@ -65,6 +71,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
                 } else {
                     rt.start();
                 }
+
                 if (st.getRunStatus().get()) {
                     st.stop();
                     Thread.sleep(1000);
@@ -79,7 +86,6 @@ public class xKTSIOImpl extends xKTSIOPOA {
 
         } else if (xAGW.OPCODE_REQP_TDX_AGW_EQUIP_CONFIG == in_KtSioMsg.opCode) {
             // DB SAVE
-
 
             EquipInfo equipInfo = EquipInfoHelper.extract(in_KtSioMsg.msgBody[0]);
             log.info("equipInfo: {}", equipInfo);
