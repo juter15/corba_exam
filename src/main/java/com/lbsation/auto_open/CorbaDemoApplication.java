@@ -50,7 +50,7 @@ public class CorbaDemoApplication {
 
     public static final ConfigModel configModel = ConfigFile.getConfig();
 //    public static final String[] ORB_OPTIONS = new String[]{"-port", configModel.getOrbPort(), "-ORBInitialPort", "1050", "-ORBInitialHost", configModel.getOrbServerHost(), "-ORBServerHost", configModel.getOrbServerHost()};
-    public static final String[] ORB_OPTIONS = new String[]{"-port", configModel.getOrbPort(), "-ORBInitialPort", "1050",  "-ORBInitialHost", "localhost"};
+    public static final String[] ORB_OPTIONS = new String[]{"-port", configModel.getOrbPort(), "-ORBInitialPort", "1050",  "-ORBInitialHost", configModel.getOrbInitialHost(), "-ORBServerHost", configModel.getOrbServerHost()};
 //
 //        public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
     public static ORB getORB() {
@@ -63,16 +63,17 @@ public class CorbaDemoApplication {
         System.out.println("### ation.com config3 ###");
 
         List<String> orbdStartupCommands = new ArrayList<>();
-
-////        orbdStartupCommands.add(configModel.getJavaHome()+"orbd");
+        orbdStartupCommands.add(configModel.getJavaHome()+"orbd");
 //        orbdStartupCommands.add("orbd");
-//        orbdStartupCommands.addAll(Arrays.asList(ORB_OPTIONS));
-//
-//        Process orbdProcess = new ProcessBuilder(orbdStartupCommands).start();
-//        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-//            System.out.println("NMS-SERVER Exiting ...");
-//            orbdProcess.destroy();
-//        }));
+        orbdStartupCommands.addAll(Arrays.asList(ORB_OPTIONS));
+
+        Process orbdProcess = new ProcessBuilder(orbdStartupCommands).start();
+        System.out.println("ORB START ..." + orbdStartupCommands);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("NMS-SERVER Exiting ...");
+            orbdProcess.destroy();
+        }));
 
         TimeUnit.SECONDS.sleep(1);
         try {
@@ -89,8 +90,8 @@ public class CorbaDemoApplication {
         String[] nameComponent = configModel.getNameComponent();
 
         Properties prop = new Properties();
-        prop.put("com.sun.CORBA.ORBServerPort", configModel.getOrbServerPort());
-        prop.put("com.sun.CORBA.ORBServerHost", configModel.getOrbServerHost());
+        prop.put("com.sun.CORBA.ORBServerPort", configModel.getServerPort());
+        prop.put("com.sun.CORBA.ORBServerHost", configModel.getServerHost());
 //
 
         orb = (ORB) ORB.init(options, prop);

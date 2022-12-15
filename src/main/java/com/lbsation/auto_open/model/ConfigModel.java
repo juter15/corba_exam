@@ -14,9 +14,10 @@ public class ConfigModel {
 
     private String orbPort;
     private String orbInitialHost;
-
-    private String orbServerPort;
     private String orbServerHost;
+
+    private String ServerPort;
+    private String serverHost;
 
     private String nameComponent;
 

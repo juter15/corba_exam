@@ -9,8 +9,9 @@ import java.util.Properties;
 
 @Slf4j
 public class ConfigFile {
-    private static String propFile = "/home/emsuser/AGWEMS/yaml/application-autoOpen.yaml";
 //    private static String propFile = "C:\\emsProject\\corba_exam\\auto_open\\src\\main\\resources\\config/application-autoOpen.yaml";
+    private static String propFile = "/home/agwems/AGWEMS/yaml/application-autoOpen.yaml";
+//    private static String propFile = "/home/emsuser/AGWEMS/yaml/application-autoOpen.yaml";
 
     public static ConfigModel getConfig() {
         Properties prop = new Properties();
@@ -27,7 +28,9 @@ public class ConfigFile {
         ConfigModel configModel = new ConfigModel();
         configModel.setOrbPort(prop.getProperty("ORB_PORT"));
         configModel.setOrbServerHost(prop.getProperty("ORB_SERVER_HOST"));
-        configModel.setOrbServerPort(prop.getProperty("ORB_SERVER_PORT"));
+        configModel.setServerPort(prop.getProperty("SERVER_PORT"));
+        configModel.setServerHost(prop.getProperty("SERVER_HOST"));
+        configModel.setOrbInitialHost(prop.getProperty("ORB_INITIALHOST"));
 
         configModel.setNameComponent(prop.getProperty("ORB_NAMECOMPONENT"));
 
@@ -36,6 +39,7 @@ public class ConfigFile {
         configModel.setDbPort(prop.getProperty("DB_PORT"));
         configModel.setDbName(prop.getProperty("DB_NAME"));
         configModel.setDbUser(prop.getProperty("DB_USER"));
+        configModel.setDbPw(prop.getProperty("DB_PW"));
         configModel.setDbPw(prop.getProperty("DB_PW"));
 
         configModel.setJavaHome(prop.getProperty("JAVA_HOME"));

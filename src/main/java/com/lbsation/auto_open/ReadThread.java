@@ -112,10 +112,10 @@ public class ReadThread implements Runnable {
 //                        Thread.sleep(1000);
                         try{
                             xKTSIOClient.recvAsyncIt(ktsioMsg, xKTSIOClient);
-                            System.out.println("### Server RecvAsyncIt CALLED ### ");
+                            System.out.println("### NOTI RecvAsyncIt CALLED ### ");
                         }
                         catch (Exception e){
-                            System.out.println("### Server RecvAsyncIt ERROR ### " + e.getMessage());
+                            System.out.println("### NOTI RecvAsyncIt ERROR ### " + e.getMessage());
 //                            clusterPool.rpush("NMS_ALARM_INFO", alarmStr);
 //                            running.set(false);
                         }
