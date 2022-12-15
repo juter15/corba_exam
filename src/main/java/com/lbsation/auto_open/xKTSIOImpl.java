@@ -5,19 +5,12 @@ import KTCosNMS.xAGWPackage.*;
 import KTCosNMS.xAGWPackage.EquipInfo;
 import KTCosNMS.xAGWPackage.EquipInfoHelper;
 import com.lbsation.auto_open.configuartion.DbConfiguration;
-import com.lbsation.auto_open.enums.RecvItType;
 import lombok.extern.slf4j.Slf4j;
-import org.jacorb.orb.ORBSingleton;
 import org.omg.CORBA.Any;
-import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA_2_3.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
-import org.omg.PortableServer.POAManagerPackage.AdapterInactive;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
-import java.util.Date;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -27,7 +20,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
     private Vector clients = new Vector();
     private Connection conn = null;
     public xKTSIO xKTSIOs = null;
-    private ReadThread rt = new ReadThread();
+    private NotiThread rt = new NotiThread();
     private StatusThread st = new StatusThread();
 
     private static final String myIOR = CorbaDemoApplication.getIor();

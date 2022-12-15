@@ -4,8 +4,10 @@ import com.lbsation.auto_open.enums.AlarmData;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lbsation.auto_open.enums.OnOff;
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString
 public class AlarmModel {
     @JsonProperty("ONOFF")
     private OnOff onoff;

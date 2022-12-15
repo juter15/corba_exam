@@ -4,32 +4,27 @@ import KTCosNMS.*;
 import KTCosNMS.xAGWPackage.enMsgType;
 import KTCosNMS.xAGWPackage.stKtAgwAlarmExtEvent;
 import KTCosNMS.xAGWPackage.stKtAgwAlarmExtEventHelper;
-import KTCosNMS.xAGWPackage.stKtAgwSessionInfo;
 import com.lbsation.auto_open.configuartion.RedisConfiguration;
 import com.lbsation.auto_open.enums.AgwTypeCode;
 import com.lbsation.auto_open.enums.AlarmData;
-import com.lbsation.auto_open.enums.MsgType;
 import com.lbsation.auto_open.enums.OnOff;
 import com.lbsation.auto_open.model.AlarmModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jacorb.orb.ORBSingleton;
 import org.omg.CORBA.Any;
 import org.omg.CORBA_2_3.ORB;
-import org.omg.PortableServer.POA;
-import org.omg.PortableServer.POAHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.*;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Service
-public class ReadThread implements Runnable {
+public class NotiThread implements Runnable {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     private static final ORB orb = CorbaDemoApplication.getORB();
@@ -113,6 +108,13 @@ public class ReadThread implements Runnable {
                         try{
                             xKTSIOClient.recvAsyncIt(ktsioMsg, xKTSIOClient);
                             System.out.println("### NOTI RecvAsyncIt CALLED ### ");
+                            if(alarmModel.getOnoff().equals(OnOff.ON)){
+                                saveNotiHistory(clusterPool, alarmModel, alarmStr);
+                            }
+                            else{
+                                delNotiHistory(clusterPool, alarmModel);
+                            }
+
                         }
                         catch (Exception e){
                             System.out.println("### NOTI RecvAsyncIt ERROR ### " + e.getMessage());
@@ -148,15 +150,14 @@ public class ReadThread implements Runnable {
                 , alarmModel.getAlarmData().getServerity()
                 , (short) 0, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0
                 , alarmModel.getCreateTime(), alarmModel.getInformation(), "", "");
-        log.info("{}", stKtAgwAlarmExtEvent);
         if(alarmModel.getOnoff().equals(OnOff.OFF)){
             stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent( AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
                     alarmModel.getTid(), alarmModel.getAlarmCode(), setNativeDeviceName(alarmModel), 0xffffffff
                     , AlarmData.CLEAR.getServerity()
                     , (short) 0, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0
                     , alarmModel.getCreateTime(), alarmModel.getInformation(), "", "");
-            log.info("{}", stKtAgwAlarmExtEvent);
         }
+        log.info("{}", stKtAgwAlarmExtEvent);
         return stKtAgwAlarmExtEvent;
     }
 
@@ -176,4 +177,15 @@ public class ReadThread implements Runnable {
     public String setNativeDeviceName(AlarmModel alarmModel) {
         return alarmModel.getGroupName1() + "/" + alarmModel.getGroupName2() + "/" + alarmModel.getGroupName3() + "/" + alarmModel.getGroupName4();
     }
+
+    public void saveNotiHistory(JedisCluster clusterPool, AlarmModel alarmModel, String alarmStr){
+        Map<String, String> tidAndCode = new HashMap<>();
+        clusterPool.hset("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode(), alarmStr);
+        log.info("### NOTI HISTORY SAVE: {}", clusterPool.hget("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode()));
+    }
+    public void delNotiHistory(JedisCluster clusterPool, AlarmModel alarmModel){
+        log.info("### NOTI HISTORY DEL: {}", clusterPool.hget("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode()));
+        clusterPool.hdel("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode());
+    }
+
 }
