@@ -180,7 +180,11 @@ public class NotiThread implements Runnable {
 
     public void saveNotiHistory(JedisCluster clusterPool, AlarmModel alarmModel, String alarmStr){
         Map<String, String> tidAndCode = new HashMap<>();
-        clusterPool.hset("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode(), alarmStr);
+        // 알람 OFF로 저장
+        String[] alaramArray = alarmStr.split("OFF");
+        log.info("alaramArray: {}", alaramArray);
+        String alarmCommand = alaramArray[0]+"OFF"+alaramArray[1].replaceFirst("ON", "OFF");
+        clusterPool.hset("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode(), alarmCommand);
         log.info("### NOTI HISTORY SAVE: {}", clusterPool.hget("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode()));
     }
     public void delNotiHistory(JedisCluster clusterPool, AlarmModel alarmModel){

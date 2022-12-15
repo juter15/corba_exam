@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.lbsation.auto_open</groupId>
-    <artifactId>auto_open</artifactId>
+    <artifactId>auto-open</artifactId>
     <version>221215</version>
-    <name>auto_open</name>
-    <description>auto_open</description>
+    <name>auto-open</name>
+    <description>auto-open</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
