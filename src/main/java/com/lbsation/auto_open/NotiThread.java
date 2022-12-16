@@ -28,7 +28,7 @@ public class NotiThread implements Runnable {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     private static final ORB orb = CorbaDemoApplication.getORB();
-    xKTSIO xKTSIOClient = null;
+
     String clientIOR = null;
     private Thread worker;
     private StatusThread st = new StatusThread();
@@ -61,7 +61,7 @@ public class NotiThread implements Runnable {
 
     public void run() {
         running.set(true);
-
+        xKTSIO xKTSIOClient = null;
         String ior = clientIOR;
 
         System.out.println("### START ### : NOTI : " + xKTSIOClient + "clientIOR: {}" + clientIOR);
@@ -84,7 +84,6 @@ public class NotiThread implements Runnable {
                         }
                         xKTSIOClient = xKTSIOHelper.narrow(orb.string_to_object(clientIOR));
                         System.out.println("### SET xKTSIOClient ### ");
-
                         st.setxKTSIO(xKTSIOClient);
                         if (st.getRunStatus().get()) {
                             st.stop();
@@ -93,7 +92,6 @@ public class NotiThread implements Runnable {
                         } else {
                             st.start();
                         }
-
                     }
 
 //                    }

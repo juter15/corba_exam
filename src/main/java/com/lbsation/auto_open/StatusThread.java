@@ -71,6 +71,11 @@ public class StatusThread implements Runnable {
                 if (xKTSIOClient == null) {
                     System.out.println("### SET xKTSIOClient ### ");
                 }
+                else{
+                    if(xKTSIOClient != xKTSIO){
+                        break;
+                    }
+                }
 
                 Any[] anyArray = new Any[1];
                 anyArray[0] = orb.create_any();
