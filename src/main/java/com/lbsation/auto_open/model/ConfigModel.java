@@ -2,6 +2,7 @@ package com.lbsation.auto_open.model;
 
 import lombok.Data;
 import lombok.ToString;
+import org.springframework.beans.factory.annotation.Value;
 
 @Data
 @ToString
@@ -23,6 +24,16 @@ public class ConfigModel {
 
     private String redisNodes;
     private String javaHome;
+
+    private static String test;
+    @Value("${test}")
+    private void setTest(String test){
+        System.out.println("test"+ test);
+        ConfigModel.test = test;
+    }
+    public static String getTest(){
+        return ConfigModel.test;
+    }
     public String[] getNameComponent(){
         return this.nameComponent.split(",");
     }

@@ -21,7 +21,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
     private Connection conn = null;
     public xKTSIO xKTSIOs = null;
     private NotiThread rt = new NotiThread();
-    private StatusThread st = new StatusThread();
+
 
     private static final String myIOR = CorbaDemoApplication.getIor();
     private static final ORB orb = CorbaDemoApplication.getORB();
@@ -53,7 +53,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
             System.out.println("### GET SESSION: " + ior);
             log.info(ior);
             rt.setIOR(ior);
-            st.setIOR(ior);
+//            st.setIOR(ior);
 
 
             try {
@@ -65,14 +65,7 @@ public class xKTSIOImpl extends xKTSIOPOA {
                     rt.start();
                 }
 
-                if (st.getRunStatus().get()) {
-                    st.stop();
-                    Thread.sleep(1000);
-                    st.start();
-                }
-                else{
-                    st.start();
-                }
+
             } catch (Exception e) {
                 e.printStackTrace();
             }

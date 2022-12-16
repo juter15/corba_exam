@@ -5,15 +5,25 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 @Slf4j
 public class ConfigFile {
-//    private static String propFile = "C:\\emsProject\\corba_exam\\auto_open\\src\\main\\resources\\config/application-autoOpen.yaml";
-    private static String propFile = "/home/agwems/AGWEMS/yaml/application-autoOpen.yaml";
+//    private static String propFile = "/home/agwems/AGWEMS/yaml/application-autoOpen.yaml";
 //    private static String propFile = "/home/emsuser/AGWEMS/yaml/application-autoOpen.yaml";
 
     public static ConfigModel getConfig() {
+        String propFile = null;
+        List<String> pathArray = Arrays.asList(System.getProperty("user.dir").split("/"));
+        if(pathArray.contains("AGWEMS")){
+            propFile = "/"+ pathArray.get(1) +"/"+ pathArray.get(2) +"/"+ pathArray.get(3) + "/yaml/application-autoOpen.yaml";
+        }
+        else{
+            propFile = "C:\\emsProject\\corba_exam\\auto_open\\src\\main\\resources\\config/application-autoOpen.yaml";
+        }
+        log.info("propFile: {}", propFile);
         Properties prop = new Properties();
         try {
 

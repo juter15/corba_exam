@@ -11,6 +11,7 @@ import com.sun.corba.se.spi.ior.IORTemplate;
 import com.sun.corba.se.spi.ior.iiop.IIOPProfileTemplate;
 import org.apache.catalina.valves.rewrite.Resolver;
 import org.apache.catalina.valves.rewrite.ResolverImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.omg.CORBA.ORBPackage.InvalidName;
 import org.omg.CORBA.Object;
 import org.omg.CORBA.UserException;
@@ -48,10 +49,10 @@ public class CorbaDemoApplication {
     public static ORB orb = null;
     public static String ior = null;
 
-    public static final ConfigModel configModel = ConfigFile.getConfig();
 //    public static final String[] ORB_OPTIONS = new String[]{"-port", configModel.getOrbPort(), "-ORBInitialPort", "1050", "-ORBInitialHost", configModel.getOrbServerHost(), "-ORBServerHost", configModel.getOrbServerHost()};
-    public static final String[] ORB_OPTIONS = new String[]{"-port", configModel.getOrbPort(), "-ORBInitialPort", "1050",  "-ORBInitialHost", configModel.getOrbInitialHost(), "-ORBServerHost", configModel.getOrbServerHost()};
 //
+    public static final ConfigModel configModel = ConfigFile.getConfig();
+    public static final String[] ORB_OPTIONS = new String[]{"-port", configModel.getOrbPort(), "-ORBInitialPort", "1050",  "-ORBInitialHost", configModel.getOrbInitialHost()};
 //        public static final String[] ORB_OPTIONS = new String[]{"-port", "36267", "-ORBServerHost", "localhost", "-ORBInitialHost", "localhost"};
     public static ORB getORB() {
         return orb;
@@ -63,9 +64,19 @@ public class CorbaDemoApplication {
         System.out.println("### ation.com config3 ###");
 
         List<String> orbdStartupCommands = new ArrayList<>();
-        orbdStartupCommands.add(configModel.getJavaHome()+"orbd");
-//        orbdStartupCommands.add("orbd");
+        if(!StringUtils.isEmpty(configModel.getJavaHome())) {
+            orbdStartupCommands.add(configModel.getJavaHome() + "orbd");
+        }
+        else{
+            orbdStartupCommands.add("orbd");
+
+        }
         orbdStartupCommands.addAll(Arrays.asList(ORB_OPTIONS));
+
+        if(!StringUtils.isEmpty(configModel.getOrbServerHost())){
+            orbdStartupCommands.add("-ORBServerHost");
+            orbdStartupCommands.add(configModel.getOrbServerHost());
+        }
 
         Process orbdProcess = new ProcessBuilder(orbdStartupCommands).start();
         System.out.println("ORB START ..." + orbdStartupCommands);

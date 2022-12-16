@@ -8,6 +8,7 @@ import com.lbsation.auto_open.enums.AgwTypeCode;
 import com.lbsation.auto_open.enums.AlarmData;
 import com.lbsation.auto_open.enums.OnOff;
 import com.lbsation.auto_open.model.AlarmModel;
+import com.lbsation.auto_open.model.ConfigModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.omg.CORBA.Any;
@@ -26,9 +27,10 @@ public class StatusThread implements Runnable {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     private static final ORB orb = CorbaDemoApplication.getORB();
-    //    xKTSIOImpl xKTSIOImpl = null;
+    xKTSIO xKTSIO = null;
     String clientIOR = null;
     private Thread worker;
+
 
     public void stop() {
         running.set(false);
@@ -36,8 +38,8 @@ public class StatusThread implements Runnable {
     }
 
 
-    public void setIOR(String ior) {
-        clientIOR = ior;
+    public void setxKTSIO(xKTSIO xKTSIOImpl) {
+        xKTSIO = xKTSIOImpl;
 
     }
 
@@ -54,25 +56,19 @@ public class StatusThread implements Runnable {
 
     public void run() {
         running.set(true);
-        xKTSIO xKTSIOClient = null;
-        String ior = clientIOR;
-        System.out.println("### START ### : STATUS : " + xKTSIOClient + "clientIOR: {}" + clientIOR);
+        xKTSIO xKTSIOClient = xKTSIO;
+//        String ior = clientIOR;
+        System.out.println("### START ### : STATUS : " + xKTSIOClient);
         ObjectMapper mapper = new ObjectMapper();
 
 //        try (Jedis jedis = RedisConfiguration.JedisConnect()) {
         try {
 //                org.jacorb.orb.ORB orb = new org.jacorb.orb.ORB();
-            System.out.println("### IOR ### " + clientIOR);
             while (running.get()) {
                 Thread.sleep(1000 * 60 * 5);
-                if(!ior.equals(clientIOR)){
-                    break;
-                }
+//                Thread.sleep(1000 * 60);
+
                 if (xKTSIOClient == null) {
-                    if (clientIOR == null) {
-                        System.out.println("### IOR NULL ### ");
-                    }
-                    xKTSIOClient = xKTSIOHelper.narrow(orb.string_to_object(clientIOR));
                     System.out.println("### SET xKTSIOClient ### ");
                 }
 
@@ -104,7 +100,7 @@ public class StatusThread implements Runnable {
 
     public StateChangeEventSt setStateChangeEventSt(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        StateChangeEventSt stateChangeEventSt =  new StateChangeEventSt("EMS", "EMS", "NMS0000", "", "S", "", dateFormat.format(new Date()));
+        StateChangeEventSt stateChangeEventSt =  new StateChangeEventSt(CorbaDemoApplication.getConfigModel().getNameComponent()[2], "", "NMS0000", "", "S", "", dateFormat.format(new Date()));
         log.info("{}", stateChangeEventSt);
         return stateChangeEventSt;
     }

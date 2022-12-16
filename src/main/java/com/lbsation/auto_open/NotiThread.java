@@ -28,9 +28,10 @@ public class NotiThread implements Runnable {
 
     private final AtomicBoolean running = new AtomicBoolean(false);
     private static final ORB orb = CorbaDemoApplication.getORB();
-    //    xKTSIOImpl xKTSIOImpl = null;
+    xKTSIO xKTSIOClient = null;
     String clientIOR = null;
     private Thread worker;
+    private StatusThread st = new StatusThread();
 
 //    public ReadThread(xKTSIOImpl xKTSIOImpl) {
 ////        this.xKTSIOImpl = xKTSIOImpl;
@@ -60,7 +61,7 @@ public class NotiThread implements Runnable {
 
     public void run() {
         running.set(true);
-        xKTSIO xKTSIOClient = null;
+
         String ior = clientIOR;
 
         System.out.println("### START ### : NOTI : " + xKTSIOClient + "clientIOR: {}" + clientIOR);
@@ -73,7 +74,7 @@ public class NotiThread implements Runnable {
                 System.out.println("### IOR ### " + clientIOR);
                 while (running.get()) {
 
-                    if(!ior.equals(clientIOR)){
+                    if (!ior.equals(clientIOR)) {
                         break;
                     }
                     if (xKTSIOClient == null) {
@@ -83,7 +84,18 @@ public class NotiThread implements Runnable {
                         }
                         xKTSIOClient = xKTSIOHelper.narrow(orb.string_to_object(clientIOR));
                         System.out.println("### SET xKTSIOClient ### ");
+
+                        st.setxKTSIO(xKTSIOClient);
+                        if (st.getRunStatus().get()) {
+                            st.stop();
+                            Thread.sleep(1000);
+                            st.start();
+                        } else {
+                            st.start();
+                        }
+
                     }
+
 //                    }
 //                    Thread.sleep(1000);
 //                    clusterPool.rpush("NMS_ALARM_INFO", "{\"ONOFF\":\"ON\",\"TYPE\":\"ONE\",\"ALARM\":[{\"ALARM_KEY\":\"7159490584401412116\",\"TID\":\"GBGMS4764\",\"MASTER_TID\":\" \",\"AGW_NAME\":\"4형_1_MGID1838_192.168.0.103\",\"AGW_TYPE\":\"4\",\"MIH_IP\":\"192.168.0.103\",\"AGW_ID\":\"8c3f9000f46d4c2f9c11c0d546bbe4dd\",\"GROUP_ID_1\":\"0f685b98926949108f0be865b58f60f6\",\"GROUP_ID_2\":\"0438290e9edb47b2a2277f8c531c3449\",\"GROUP_ID_3\":\"196bf3e42d6e46ca855611ccb9e6569e\",\"GROUP_ID_4\":\"15fa070e32544f6b90605d226bdb3cbf\",\"GROUP_NAME_1\":\"대구본부\",\"GROUP_NAME_2\":\"경북유선센터\",\"GROUP_NAME_3\":\"구미\",\"GROUP_NAME_4\":\"4공단BBS\",\"ALARM_CODE\":\"CONN\",\"ALARM_GRADE\":\"DIS\",\"CREATE_TIME\":\"2022-10-28 18:20:01\",\"INFORMATION\":\"TDXAGW DISCONNECTED\"}]}\n");
@@ -105,18 +117,16 @@ public class NotiThread implements Runnable {
                         KTSIOMsg ktsioMsg = setKTKtsioMsg(anyArray, alarmModel);
                         log.info("{}", ktsioMsg);
 //                        Thread.sleep(1000);
-                        try{
+                        try {
                             xKTSIOClient.recvAsyncIt(ktsioMsg, xKTSIOClient);
                             System.out.println("### NOTI RecvAsyncIt CALLED ### ");
-                            if(alarmModel.getOnoff().equals(OnOff.ON)){
+                            if (alarmModel.getOnoff().equals(OnOff.ON)) {
                                 saveNotiHistory(clusterPool, alarmModel, alarmStr);
-                            }
-                            else{
+                            } else {
                                 delNotiHistory(clusterPool, alarmModel);
                             }
 
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
                             System.out.println("### NOTI RecvAsyncIt ERROR ### " + e.getMessage());
 //                            clusterPool.rpush("NMS_ALARM_INFO", alarmStr);
 //                            running.set(false);
@@ -145,13 +155,13 @@ public class NotiThread implements Runnable {
 
     public stKtAgwAlarmExtEvent setStKtAgwAlarmExtEvent(AlarmModel alarmModel) {
         stKtAgwAlarmExtEvent stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent();
-        stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent( AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
+        stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent(AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
                 alarmModel.getTid(), alarmModel.getAlarmCode(), setNativeDeviceName(alarmModel), 0xffffffff
                 , alarmModel.getAlarmData().getServerity()
                 , (short) 0, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0
                 , alarmModel.getCreateTime(), alarmModel.getInformation(), "", "");
-        if(alarmModel.getOnoff().equals(OnOff.OFF)){
-            stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent( AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
+        if (alarmModel.getOnoff().equals(OnOff.OFF)) {
+            stKtAgwAlarmExtEvent = new stKtAgwAlarmExtEvent(AgwTypeCode.MERCURY_AGW.getAgwTypeCode(),
                     alarmModel.getTid(), alarmModel.getAlarmCode(), setNativeDeviceName(alarmModel), 0xffffffff
                     , AlarmData.CLEAR.getServerity()
                     , (short) 0, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 0
@@ -162,8 +172,8 @@ public class NotiThread implements Runnable {
     }
 
     /*
-    * neType: ???
-    * */
+     * neType: ???
+     * */
     public KTSIOMsg setKTKtsioMsg(Any[] anyArray, AlarmModel alarmModel) {
         KTSIOMsg ktsioMsg = new KTSIOMsg(alarmModel.getTid(), (short) 6, (short) enVendorCode._VENDOR_Mercury,
                 (short) enMsgType.MSGTYPE_Alarm.value(), xAGW.OPCODE_ALARM_EVENT
@@ -178,16 +188,17 @@ public class NotiThread implements Runnable {
         return alarmModel.getGroupName1() + "/" + alarmModel.getGroupName2() + "/" + alarmModel.getGroupName3() + "/" + alarmModel.getGroupName4();
     }
 
-    public void saveNotiHistory(JedisCluster clusterPool, AlarmModel alarmModel, String alarmStr){
+    public void saveNotiHistory(JedisCluster clusterPool, AlarmModel alarmModel, String alarmStr) {
         Map<String, String> tidAndCode = new HashMap<>();
         // 알람 OFF로 저장
         String[] alaramArray = alarmStr.split("OFF");
         log.info("alaramArray: {}", alaramArray);
-        String alarmCommand = alaramArray[0]+"OFF"+alaramArray[1].replaceFirst("ON", "OFF");
+        String alarmCommand = alaramArray[0] + "OFF" + alaramArray[1].replaceFirst("ON", "OFF");
         clusterPool.hset("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode(), alarmCommand);
         log.info("### NOTI HISTORY SAVE: {}", clusterPool.hget("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode()));
     }
-    public void delNotiHistory(JedisCluster clusterPool, AlarmModel alarmModel){
+
+    public void delNotiHistory(JedisCluster clusterPool, AlarmModel alarmModel) {
         log.info("### NOTI HISTORY DEL: {}", clusterPool.hget("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode()));
         clusterPool.hdel("NMS_ALARM", alarmModel.getTid() + "_" + alarmModel.getAlarmCode());
     }

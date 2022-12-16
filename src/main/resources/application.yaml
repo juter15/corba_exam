@@ -26,3 +26,4 @@ spring:
     password: ${DATASOURCE_PASSWORD:ems!user123}
 
 #alarmKey: ${DIAG_KEY:ALARM}
+test: test
